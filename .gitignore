@@ -1,0 +1,26 @@
+# ignore everything
+*
+# but descend into directories
+!*/
+# recursively allow files under subtree
+!/test/**
+!/static/**
+!/assessments/mkdocs.yml
+!/bin/**
+!/commands/**
+!/lib/**
+!.dockerignore
+!.editorconfig
+!.eslint*
+!.gitignore
+!.nvmrc
+!.travis.yml
+!docker-mkdocs.yml
+!Dockerfile
+!LICENSE
+!Makefile
+!package.json
+!README.md
+!relocatable_venv
+!yarn.lock
+

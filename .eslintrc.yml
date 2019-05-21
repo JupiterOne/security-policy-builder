@@ -1,0 +1,16 @@
+extends:
+  - semistandard
+parserOptions:
+  ecmaVersion: 8
+env:
+  node:
+    - true
+rules:
+  template-curly-spacing:
+    - off
+  import/no-extraneous-dependencies:
+    - error
+  no-var:
+    - error
+  prefer-const:
+    - error

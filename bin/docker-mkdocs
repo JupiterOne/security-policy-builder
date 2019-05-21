@@ -1,0 +1,3 @@
+#!/bin/bash
+export LC_ALL=C.UTF-8
+/usr/local/bin/mkdocs $*

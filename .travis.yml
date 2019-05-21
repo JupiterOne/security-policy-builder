@@ -1,0 +1,30 @@
+language: node_js
+node_js:
+  - '8'
+  - '10'
+  - '11'
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
+
+script: yarn build
+
+deploy:
+  provider: npm
+  email: npm@jupiterone.io
+  api_key:
+    secure: 'ZMZSOyDrZfTEbM6DvbSAnsY0ez6e5RGcT/6qeiuer9r3otFsG03VOaYOiM+OljF4PLGblrUZoUUkLrS+vKlDImXGhK/F5LGzW7c10EF9LXilWNcWP
+Ms2XT8VZQrD13l+14tzqhGwjsxptTkEyRiou7MNxSt8BSvbVBYKKZUCfHhEDSR64w4ivSi4qdQ+C5LhCR3nCjtwRfiX9uv6YBHip2/W/C8ZMZFJpnd
+tc9gIE+q3gnPQfPS6Oy0uiPPUAII3rdEX7mk0sKGQvycZH8DL0KM5kyt6DAplbEiG1Zw2qkcICTL5oyVBgg9yW12RDVKy9GJunsBOzfTkZWATMfmDN
+GVaaBEAAOOYf5pu3vvfjaSZ6IOV+6QO2e2NLbpcsOv1LcDaYv1xljM+GoVFFGLRxUGxdj6z/XkddhlJ4nc7RSszwQSIlpBNrsvDdYmB7p/fAPiLnGX
+tNT0yMT2mnFjEhj8KtXu6boRQUey53WPRtb4mtnoBaerKv2KaigoPN/gYk6JB+QzQ3YAJiZUAz2IS+fMt0w3EuvEMgfMUXbqR/8KxwMBb5kBb+oc3C
+wYrCSlWQXDJB+rlru0SNVQEfFBEBcfUJ6tdCeFyu2uUv49KwsXroCLumDUE13RX0saw3J6TE1dEt5LOmzFamTLn6I0KuPCTg4n9GvNvEfCIB8NthIE
+='
+  skip_cleanup: true
+  on:
+    tags: true
+    branch: master
+    repo: JupiterOne/jupiter-policy-builder
+    node: '8'

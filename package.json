@@ -1,0 +1,81 @@
+{
+  "name": "@jupiterone/jupiter-policy-builder",
+  "version": "2.4.1",
+  "description": "Configurable compilation of policies, standards, and procedures documentation.",
+  "author": "LifeOmic Security <security@lifeomic.com>",
+  "keywords": [
+    "security",
+    "documentation",
+    "compiler"
+  ],
+  "license": "UNLICENSED",
+  "main": "dist/index.js",
+  "bin": "bin/psp",
+  "scripts": {
+    "clean": "rm -rf -- *.log *.zip",
+    "build": "babel ./lib --out-dir ./dist",
+    "prebuild": "yarn test",
+    "zip": "make",
+    "dockerzip": "make dockerzip",
+    "mkdocs": "make mkdocs",
+    "pretest": "eslint .",
+    "test": "nyc ava",
+    "lcov": "nyc --reporter=html ava; open $(git rev-parse --show-toplevel)/coverage/index.html"
+  },
+  "files": [
+    "bin",
+    "commands",
+    "dist",
+    "lib",
+    "static"
+  ],
+  "dependencies": {
+    "@jupiterone/jupiterone-client-nodejs": "^0.3.0",
+    "@jupiterone/security-policy-templates": "^2.4.7",
+    "chalk": "^2.3.1",
+    "commander": "^2.14.1",
+    "file-set": "^2.0.0",
+    "fs-extra": "^5.0.0",
+    "inquirer": "^5.1.0",
+    "joi": "^13.1.2",
+    "moment": "^2.22.2",
+    "mustache": "^2.3.0",
+    "p-map": "^1.2.0",
+    "pluralize": "^7.0.0",
+    "progress": "^2.0.3",
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2",
+    "strip-ansi": "^4.0.0",
+    "valid-url": "^1.0.9"
+  },
+  "devDependencies": {
+    "ava": "^0.25.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "eslint": ">=4.12.1",
+    "eslint-config-semistandard": "12.0.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^6.0.0",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "nock": "^9.1.9",
+    "nyc": "^11.4.1"
+  },
+  "ava": {
+    "files": [
+      "test/unit/*.js",
+      "test/integration/*.js"
+    ],
+    "sources": [
+      "!test/fixtures/*"
+    ]
+  },
+  "nyc": {
+    "exclude": [
+      "**/questions/**/*.js",
+      "**/questions.js",
+      "test/**"
+    ]
+  }
+}

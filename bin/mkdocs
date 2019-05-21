@@ -1,0 +1,14 @@
+#!/bin/bash
+
+dir="$(dirname "$0")"
+
+virtualenv="${dir}/../env/bin/activate"
+if [ ! -f "$virtualenv" ]; then
+  echo "Cannot find virtualenv at $virtualenv. Have you run 'yarn mkdocs'?"
+  exit 1
+fi
+
+# shellcheck source=/dev/null
+source "$virtualenv"
+
+mkdocs "$@"
