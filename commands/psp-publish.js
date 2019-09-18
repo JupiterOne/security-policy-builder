@@ -20,6 +20,7 @@ async function main () {
     .option('-c, --config <file>', 'path to config file')
     .option('-t, --templates [dir]', 'optional path to templates directory', 'templates')
     .option('-u, --user <email>', 'JupiterOne user email.')
+    .option('-k, --api-token <api_token>', 'JupiterOne API Token.')
     .option('-n, --noninteractive', 'do not prompt for confirmation, expect password on stdin')
     .parse(process.argv);
 
@@ -53,7 +54,9 @@ async function validateInputs () {
   if (!program.config || program.config === '') {
     error.fatal('Missing -c|--config flag!', EUSAGEERROR);
   }
-  await gatherPassword();
+  if (!program.apiToken) {
+    await gatherPassword();
+  }
 }
 
 // ensure docs are built and config.json is valid
@@ -121,13 +124,14 @@ async function gatherPassword () {
 
 async function initializeJ1Client () {
   process.stdout.write('Authenticating with JupiterOne... ');
-  const j1Client = await (new JupiterOneClient(
-    program.account,
-    program.user,
-    program.password,
-    J1_USER_POOL_ID,
-    J1_CLIENT_ID
-  )).init();
+  const j1Client = await (new JupiterOneClient({
+    account: program.account,
+    username: program.user,
+    password: program.password,
+    poolId: J1_USER_POOL_ID,
+    clientId: J1_CLIENT_ID,
+    accessToken: program.apiToken
+  })).init();
   console.log('OK!');
   return j1Client;
 }

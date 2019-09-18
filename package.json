@@ -30,7 +30,7 @@
     "static"
   ],
   "dependencies": {
-    "@jupiterone/jupiterone-client-nodejs": "^0.3.0",
+    "@jupiterone/jupiterone-client-nodejs": "^0.16.1",
     "@jupiterone/security-policy-templates": "^2.4.7",
     "chalk": "^2.3.1",
     "commander": "^2.14.1",
