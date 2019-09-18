@@ -124,14 +124,20 @@ async function gatherPassword () {
 
 async function initializeJ1Client () {
   process.stdout.write('Authenticating with JupiterOne... ');
-  const j1Client = await (new JupiterOneClient({
-    account: program.account,
-    username: program.user,
-    password: program.password,
-    poolId: J1_USER_POOL_ID,
-    clientId: J1_CLIENT_ID,
-    accessToken: program.apiToken
-  })).init();
+  const j1Options = {
+    account: program.account
+  };
+
+  if (program.apiToken) {
+    j1Options.accessToken = program.account;
+  } else {
+    j1Options.username = program.user;
+    j1Options.password = program.password;
+    j1Options.poolId = J1_USER_POOL_ID;
+    j1Options.clientId = J1_CLIENT_ID;
+  }
+
+  const j1Client = await (new JupiterOneClient(j1Options)).init();
   console.log('OK!');
   return j1Client;
 }
