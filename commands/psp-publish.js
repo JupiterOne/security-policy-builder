@@ -129,7 +129,7 @@ async function initializeJ1Client () {
   };
 
   if (program.apiToken) {
-    j1Options.accessToken = program.account;
+    j1Options.accessToken = program.apiToken;
   } else {
     j1Options.username = program.user;
     j1Options.password = program.password;
