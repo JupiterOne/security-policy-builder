@@ -138,8 +138,10 @@ can access them online.
 ```
 
 The `publish` command will prompt you to enter the password for your JupiterOne
-user account. Your JupiterOne user must have administrator privilege to publish
-the contents.
+user account. You can also supply the API Token instead of a password with the
+`-k | --api-token` option.
+
+Your JupiterOne user must have administrator privilege to publish the contents.
 
 ### Generating Self Assessment Reports
 

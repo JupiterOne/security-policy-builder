@@ -49,11 +49,17 @@
   dependencies:
     arrify "^1.0.1"
 
-"@jupiterone/jupiterone-client-nodejs@^0.3.0":
+"@jupiterone/jupiterone-alert-rules@^0.3.0":
   version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@jupiterone/jupiterone-client-nodejs/-/jupiterone-client-nodejs-0.3.0.tgz#c10192788d09f51248e1052ae2b97bb392fa2a4c"
-  integrity sha512-Xg+f1kRiP+TSFEDaSO1KhDuLik7isj61SEFyGx8LI5nwdsV6K1alswVztvxvoXZojs0/0ZcgS6FRPxkPAT3nIQ==
+  resolved "https://registry.yarnpkg.com/@jupiterone/jupiterone-alert-rules/-/jupiterone-alert-rules-0.3.0.tgz#224e2e5ab445ef21497e57a4b0cc2f4afc73504b"
+  integrity sha512-BDAKVgL7TobJ3PD3Phioa0LgopEHzRelZSgiBjFvAMFR8wiQs4GE/iSt/tVENQP/kKDfQLyM0wiyaJlgdHLyhQ==
+
+"@jupiterone/jupiterone-client-nodejs@^0.16.1":
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/@jupiterone/jupiterone-client-nodejs/-/jupiterone-client-nodejs-0.16.1.tgz#214d87572d5447ebaefd09cc1b2369a7cc0cfa89"
+  integrity sha512-OsUxhzthbLy2ZzKFe6zCZuCHb0I9Q4+kNX56Zw770Af6guvbPOB+5yzwwUMekoM2TKn6D+uhTGXDMem67q3UVw==
   dependencies:
+    "@jupiterone/jupiterone-alert-rules" "^0.3.0"
     amazon-cognito-identity-js-node "^0.0.3"
     apollo-cache-inmemory "^1.5.1"
     apollo-client "^2.5.1"
@@ -61,9 +67,25 @@
     apollo-link-batch-http "^1.2.11"
     apollo-link-http "^1.5.12"
     apollo-link-retry "^2.2.13"
+    commander "^2.14.1"
+    file-set "^2.0.0"
+    fs-extra "^5.0.0"
     graphql "^14.1.1"
     graphql-tag "^2.10.1"
+    inquirer "^5.1.0"
+    js-yaml "^3.13.1"
+    moment "^2.22.2"
+    mustache "^2.3.0"
     node-fetch "^2.3.0"
+    p-all "^2.1.0"
+    p-map "^1.2.0"
+    papaparse "^4.6.3"
+    pluralize "^7.0.0"
+    progress "^2.0.3"
+    request "^2.87.0"
+    request-promise "^4.2.2"
+    strip-ansi "^4.0.0"
+    valid-url "^1.0.9"
 
 "@jupiterone/security-policy-templates@^2.4.7":
   version "2.4.7"
@@ -3074,6 +3096,14 @@ js-yaml@^3.10.0, js-yaml@^3.9.1:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
+js-yaml@^3.13.1:
+  version "3.13.1"
+  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.13.1.tgz#aff151b30bfdfa8e49e05da22e7415e9dfa37847"
+  integrity sha512-YfbcO7jXDdyj0DGxYVSlSeQNHbD7XPWvrVWeVUujrQEoZzWJIRrCPoyk6kL6IAjAG2IolMK4T0hNUe0HOUs5Jw==
+  dependencies:
+    argparse "^1.0.7"
+    esprima "^4.0.0"
+
 jsbn@^0.1.0, jsbn@~0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
@@ -3728,6 +3758,13 @@ output-file-sync@^1.1.2:
     mkdirp "^0.5.1"
     object-assign "^4.1.0"
 
+p-all@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/p-all/-/p-all-2.1.0.tgz#91419be56b7dee8fe4c5db875d55e0da084244a0"
+  integrity sha512-HbZxz5FONzz/z2gJfk6bFca0BCiSRF8jU3yCsWOen/vR6lZjfPOu/e7L3uFzTW1i0H8TlC3vqQstEJPQL4/uLA==
+  dependencies:
+    p-map "^2.0.0"
+
 p-finally@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/p-finally/-/p-finally-1.0.0.tgz#3fbcfb15b899a44123b34b6dcc18b724336a2cae"
@@ -3751,6 +3788,11 @@ p-map@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/p-map/-/p-map-1.2.0.tgz#e4e94f311eabbc8633a1e79908165fca26241b6b"
   integrity sha512-r6zKACMNhjPJMTl8KcFH4li//gkrXWfbD6feV8l6doRHlzljFWGJ2AP6iKaCJXyZmAUMOPtvbW7EXkbWO/pLEA==
+
+p-map@^2.0.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/p-map/-/p-map-2.1.0.tgz#310928feef9c9ecc65b68b17693018a665cea175"
+  integrity sha512-y3b8Kpd8OAN444hxfBbFfj1FY/RjtTd8tzYwhUqNYXx0fXx2iX4maP4Qr6qhIKbQXI02wTLAda4fYUbDagTUFw==
 
 p-try@^1.0.0:
   version "1.0.0"
@@ -3783,6 +3825,11 @@ package-json@^4.0.0:
     registry-auth-token "^3.0.1"
     registry-url "^3.0.3"
     semver "^5.1.0"
+
+papaparse@^4.6.3:
+  version "4.6.3"
+  resolved "https://registry.yarnpkg.com/papaparse/-/papaparse-4.6.3.tgz#742e5eaaa97fa6c7e1358d2934d8f18f44aee781"
+  integrity sha512-LRq7BrHC2kHPBYSD50aKuw/B/dGcg29omyJbKWY3KsYUZU69RKwaBHu13jGmCYBtOc4odsLCrFyk6imfyNubJQ==
 
 parse-glob@^3.0.4:
   version "3.0.4"
