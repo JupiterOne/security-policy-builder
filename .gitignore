@@ -1,5 +1,6 @@
 # ignore everything
 *
+node_modules/
 # but descend into directories
 !*/
 # recursively allow files under subtree

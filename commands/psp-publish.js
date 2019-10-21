@@ -214,10 +214,10 @@ async function upsertConfigData (j1Client, config, templateData, section) {
       displayName: item.name,
       adopted: item.adopted,
       provider: item.provider,
+      summary: item.summary,
       type: item.type,
       createdOn: (new Date()).getTime(),
-      updatedOn: (new Date()).getTime(),
-      reviewedOn: -1
+      updatedOn: (new Date()).getTime()
     };
 
     // TODO: account for rename/deletions in graph... changing the id will result in creating a new entity, orphaning old
