@@ -1,6 +1,6 @@
 {
   "name": "@jupiterone/jupiter-policy-builder",
-  "version": "2.5.3",
+  "version": "2.6.0",
   "description": "Configurable compilation of policies, standards, and procedures documentation.",
   "author": "LifeOmic Security <security@lifeomic.com>",
   "keywords": [
