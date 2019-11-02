@@ -31,7 +31,7 @@
   ],
   "dependencies": {
     "@jupiterone/jupiterone-client-nodejs": "^0.16.1",
-    "@jupiterone/security-policy-templates": "^2.4.7",
+    "@jupiterone/security-policy-templates": "^2.6.1",
     "chalk": "^2.3.1",
     "commander": "^2.14.1",
     "file-set": "^2.0.0",

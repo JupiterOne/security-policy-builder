@@ -87,10 +87,10 @@
     strip-ansi "^4.0.0"
     valid-url "^1.0.9"
 
-"@jupiterone/security-policy-templates@^2.4.7":
-  version "2.4.7"
-  resolved "https://registry.yarnpkg.com/@jupiterone/security-policy-templates/-/security-policy-templates-2.4.7.tgz#b9f47e3ebc57afb88b02bcf8ea66414c6310fc71"
-  integrity sha512-1thsSrf+A9fsSumde3zw7sXq5jOPpBlhF/UOswiJjijFtq1ha5vl9mGzUJNkXnkUzgNyL769+k48R9EbhP/jmg==
+"@jupiterone/security-policy-templates@^2.6.1":
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/@jupiterone/security-policy-templates/-/security-policy-templates-2.6.1.tgz#7fd70c51ccee671988eba8acfa77d3f377af82a0"
+  integrity sha512-aD+h9OKhEwggayuNuFowDEgrDnjIcfOQnXirlGM2y8XCWffcJQy+RGiwMfo72j+47rYw3+Kzkxop9w0bGKcf5w==
 
 "@ladjs/time-require@^0.1.4":
   version "0.1.4"
