@@ -2,7 +2,7 @@
 *
 node_modules/
 # but descend into directories
-!*/
+!*/*
 # recursively allow files under subtree
 !/test/**
 !/static/**
@@ -10,6 +10,7 @@ node_modules/
 !/bin/**
 !/commands/**
 !/lib/**
+!/util/
 !.dockerignore
 !.editorconfig
 !.eslint*

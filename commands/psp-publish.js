@@ -216,6 +216,7 @@ async function upsertConfigData (j1Client, config, templateData, section) {
       provider: item.provider,
       summary: item.summary,
       type: item.type,
+      webLink: item.webLink || null,
       createdOn: (new Date()).getTime(),
       updatedOn: (new Date()).getTime()
     };

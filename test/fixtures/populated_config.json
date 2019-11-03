@@ -245,7 +245,8 @@
       "name": "Facility Access and Physical Security",
       "adopted": true,
       "procedures": [
-        "cp-physical"
+        "cp-physical",
+        "cp-physical-datacenter"
       ]
     },
     {
@@ -1177,6 +1178,17 @@
         "manual process"
       ],
       "summary": "Don't forget physical security. Even though your office environment may not have critical/production systems or data, you probably don't want strangers wondering around unescorted.  You probably need some kind of badge access, which may already be provided to you as part of your lease. You'll most likely need to edit this documentation with your facilities details. If you choose to implement video surveillance, Cisco Meraki is a pretty good choice.",
+      "applicable": true,
+      "adopted": true
+    },
+    {
+      "id": "cp-physical-datacenter",
+      "file": "procedures/cp-physical-datacenter.md",
+      "name": "Data Center Security",
+      "type": "physical",
+      "provider": "AWS",
+      "summary": "Data center security is ensured by the cloud service provider.",
+      "guidance": "If you host your own data center, you will need to document in details the physical and environmental security of the data centers. Otherwise, this is most likely taken care of by your cloud security provider (e.g. AWS, Azure, GCP).",
       "applicable": true,
       "adopted": true
     },
