@@ -24,6 +24,9 @@ program
   .option('-s, --replace-space [char]', 'replace space in URL with this specified character')
   .option('-c, --config [file]', 'JSON config file')
   .option('-p, --param [name|id]', 'use either "name" or "id" from each policy/procedure to build the URL')
+  .option('--policy-param [name|id]', 'use either "name" or "id" from each policy to build the URL')
+  .option('--procedure-param [name|id]', 'use either "name" or "id" from each procedure to build the URL')
+  .option('-l, --lower-case', 'use all lowercase URL')
   .parse(process.argv);
 
 const fs = require('fs');
@@ -33,24 +36,37 @@ const domain = program.domain || 'company';
 const site = program.site || 'default';
 const key = program.key;
 const spaceChar = program.replaceSpace || '';
-const param = program.param || (site === 'default') ? 'id' : 'name';
+const param = program.param || ((site === 'default') ? 'id' : 'name');
+const policyParam = program.policyParam || ((site === 'mkdocs') && 'id');
+const procedureParam = program.procedureParam || ((site === 'mkdocs') && 'name');
+const forceLowerCase = program.lowerCase || site === 'mkdocs';
+const sectionPrefix = '';
 
 const sites = {
   sharepoint: {
     baseUrl: `https://${domain}.sharepoint.com/SitePages${key ? '/' + key : ''}`,
-    spaceChar: '%20'
+    spaceChar: '%20',
+    sectionPrefix
   },
   confluence: {
     baseUrl: `https://confluence.${domain.match(/\.\w{2,}$/) ? domain : domain + '.com'}/display/${key}`,
-    spaceChar: '+'
+    spaceChar: '+',
+    sectionPrefix
+  },
+  mkdocs: {
+    baseUrl: `https://${domain}/${key}`,
+    spaceChar: '-',
+    sectionPrefix: '#'
   },
   custom: {
     baseUrl: `https://${domain}/${key}`,
-    spaceChar
+    spaceChar,
+    sectionPrefix
   },
   default: {
     baseUrl: `https://apps.us.jupiterone.io/policies`,
-    spaceChar: ''
+    spaceChar: '',
+    sectionPrefix
   }
 };
 
@@ -73,11 +89,16 @@ for (const procedure of config.procedures || []) {
   const id = procedure.id;
   const policy = mapping[id];
 
-  procedure.webLink = `${siteConfig.baseUrl}/${
-    policy[param].replace(/\s/g, siteConfig.spaceChar)
-  }/${
-    procedure[param].replace(/\s/g, siteConfig.spaceChar)
+  const part1 = policyParam ? policy[policyParam] : policy[param];
+  const part2 = procedureParam ? procedure[procedureParam] : procedure[param];
+
+  const webLink = `${siteConfig.baseUrl}/${
+    part1.replace(/\s/g, siteConfig.spaceChar)
+  }/${siteConfig.sectionPrefix}${
+    part2.replace(/\s/g, siteConfig.spaceChar)
   }`;
+
+  procedure.webLink = forceLowerCase ? webLink.toLowerCase() : webLink;
 }
 
 fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
