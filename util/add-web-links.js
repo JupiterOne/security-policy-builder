@@ -20,8 +20,8 @@ program
   .usage('[options]')
   .option('-s, --site [SharePoint|Confluence]', 'the site where policies and procedures are hosted (only SharePoint and Confluence are supported by default)')
   .option('-d, --domain [name]', 'company domain name or vanity subdomain name as part of the site URL')
-  .option('-k, --key [directoryNameOrSpaceKey]', 'Subdirectory name or key for the site, such as SPACEKEY for a Confluence site')
-  .option('-s, --replace-space [char]', 'Replace space in URL with this specified character')
+  .option('-k, --key [directoryNameOrSpaceKey]', 'subdirectory name or key for the site, such as SPACEKEY for a Confluence site')
+  .option('-s, --replace-space [char]', 'replace space in URL with this specified character')
   .option('-c, --config [file]', 'JSON config file')
   .option('-p, --param [name|id]', 'use either "name" or "id" from each policy/procedure to build the URL')
   .parse(process.argv);
