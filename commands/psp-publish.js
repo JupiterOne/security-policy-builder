@@ -9,8 +9,10 @@ const program = require('commander');
 const error = require('../lib/error');
 const path = require('path');
 const fs = require('fs');
+const pAll = require('p-all');
 
 const EUSAGEERROR = 126;
+const MAX_CONCURRENCY = 5;
 
 async function main () {
   program
@@ -165,10 +167,10 @@ async function readTemplateData (config) {
         const tmplData = await readFilePromise(tmplPath);
         data[section][configItem.id] = tmplData;
       };
-      todos.push(work());
+      todos.push(work);
     });
   });
-  await Promise.all(todos);
+  await pAll(todos, { concurrency: MAX_CONCURRENCY });
   console.log('OK!');
   return data;
 }
@@ -249,9 +251,9 @@ async function upsertConfigData (j1Client, config, templateData, section) {
         bar.tick();
       };
     }
-    todos.push(work()); // create or update entity, upsert template data
+    todos.push(work); // create or update entity, upsert template data
   });
-  await Promise.all(todos);
+  await pAll(todos, { concurrency: MAX_CONCURRENCY });
 }
 
 async function upsertImplementsRelationships (j1Client, config) {
@@ -296,11 +298,11 @@ async function upsertImplementsRelationships (j1Client, config) {
         await j1Client.createRelationship(relKey, relType, relClass, implementor.entity._id, policy.entity._id);
         bar.tick();
       };
-      todos.push(work());
+      todos.push(work);
     });
   });
 
-  await Promise.all(todos);
+  await pAll(todos, { concurrency: MAX_CONCURRENCY });
   warns.forEach(warning => {
     console.warn(warning);
   });
