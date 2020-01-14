@@ -1,2 +1,6 @@
-#!/usr/bin/env node
-require('../commands/psp.js')
+#!/bin/bash
+if [ -z "$PROJECT_DIR" ]; then
+  PROJECT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+fi
+export PROJECT_DIR
+node "${PROJECT_DIR}/commands/psp.js" "$@"
