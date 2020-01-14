@@ -6,7 +6,7 @@ const fs = require('fs-extra');
 
 const pkg = require('../../package');
 const moduleVersion = pkg.version;
-const cli = path.join(__dirname, '../..', pkg.bin);
+const cli = path.join(__dirname, '../..', pkg.bin.psp);
 
 const fixturesDir = path.join(__dirname, '../fixtures');
 const templatesDir = path.join(fixturesDir, 'templates');
