@@ -49,7 +49,7 @@ const sites = {
     sectionPrefix
   },
   confluence: {
-    baseUrl: `https://confluence.${domain.match(/\.\w{2,}$/) ? domain : domain + '.com'}/display/${key}`,
+    baseUrl: `https://${domain}.atlassian.net/wiki/display/${key}`,
     spaceChar: '+',
     sectionPrefix
   },

@@ -10,7 +10,9 @@
   ],
   "license": "UNLICENSED",
   "main": "dist/index.js",
-  "bin": "bin/psp",
+  "bin": {
+    "psp": "bin/psp"
+  },
   "scripts": {
     "clean": "rm -rf -- *.log *.zip",
     "build": "babel ./lib --out-dir ./dist",
