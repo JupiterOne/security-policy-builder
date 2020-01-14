@@ -7,7 +7,7 @@ node_modules/
 !/test/**
 !/static/**
 !/assessments/mkdocs.yml
-!/bin/**
+!/bin
 !/commands/**
 !/lib/**
 !/util/
