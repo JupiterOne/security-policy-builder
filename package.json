@@ -52,7 +52,7 @@
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
-    "ava": "^0.25.0",
+    "ava": "^2.4.0",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "eslint": ">=4.12.1",

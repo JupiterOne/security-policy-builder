@@ -69,7 +69,7 @@ test('assets.downloadCustomLogo throws error when unable to download url', async
     }
   };
 
-  await t.throws(assets.downloadCustomLogo(config, t.context.outDir));
+  await t.throwsAsync(assets.downloadCustomLogo(config, t.context.outDir));
 });
 
 test('assets.downloadCustomLogo throws error when unable to save file', async t => {
@@ -81,10 +81,10 @@ test('assets.downloadCustomLogo throws error when unable to save file', async t 
   };
 
   const notADirectory = '/dev/null';
-  await t.throws(assets.downloadCustomLogo(config, notADirectory));
+  await t.throwsAsync(assets.downloadCustomLogo(config, notADirectory));
 });
 
 test('assets.copyStaticAssets throws error when unable to create dir', async t => {
   const notADirectory = '/dev/null/dir';
-  await t.throws(assets.copyStaticAssets(notADirectory));
+  await t.throwsAsync(assets.copyStaticAssets(notADirectory));
 });
