@@ -1,6 +1,6 @@
 {
   "name": "@jupiterone/jupiter-policy-builder",
-  "version": "2.6.6",
+  "version": "2.6.7",
   "description": "Configurable compilation of policies, standards, and procedures documentation.",
   "author": "JupiterOne <hello@jupiterone.io>",
   "keywords": [
