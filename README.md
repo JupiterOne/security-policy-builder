@@ -14,7 +14,51 @@ and run `psp build` to be interactively prompted for configuration values.
 This will generate a `config.json` file that may be used to speed-up future
 invocations.
 
-## Building and deploying policies
+## TL;DR
+
+Run the following command to install the policy builder and build the policies.
+You will be prompted for a few inputs, such as company name, to be included in
+your policy text.
+
+```bash
+npm install -g @jupiterone/jupiter-policy-builder
+
+psp build
+```
+
+You will be prompted to save the config to a file, which you can reference the
+next time you'd like to rebuild the policies and procedures:
+
+```bash
+psp build -t ./templates -c path/to/your/config.json
+```
+
+The result files are put in `./docs` (Markdown) and `./site` (HTML).
+
+**IMPORTANT:** To edit the policies and procedures, use the template files in
+`./templates` and re-run the `psp build` command. Do _not_ edit the `./docs` and
+`./partials` files directly as they will be overwritten on the next build.
+
+For more detailed builder instructions, see the README [here][builder].
+
+### Publishing policies and procedures to JupiterOne
+
+If you have an account on the JupiterOne security platform (https://jupiterone.io),
+you can run the following command to publish the contents of your policies and
+procedures to your JupiterOne account, so that you and others in your organization
+can access them online.
+
+```bash
+./bin/psp publish -a j1accountId -c path/to/your/config.json -t ./templates -u j1userId
+```
+
+The `publish` command will prompt you to enter the password for your JupiterOne
+user account. You can also supply the API Token instead of a password with the
+`-k | --api-token` option.
+
+Your JupiterOne user must have administrator privilege to publish the contents.
+
+## Advanced steps to build and deploy policies
 
 ### From docker zipfile
 
@@ -102,6 +146,36 @@ system. Follow the installation instructions here:
 NOTE: on OSX systems, you will likely also need to install XeLaTeX from here:
 [http://www.texts.io/support/0001/](http://www.texts.io/support/0001/)
 
+#### Example steps for macOS
+  
+Install **Pandoc**:
+
+```bash
+sudo brew install pandoc
+```
+
+Install **pandoc-latex-admonition**, which is a pandoc filter for adding
+admonition:
+
+```bash
+-pip install pandoc-latex-admonition
++pip3 install pandoc-latex-admonition
+```
+
+Download and install **LaTex**, or
+[MacTeX](http://www.tug.org/mactex/morepackages.html). The smaller distribution,
+BasicTeX is sufficient, but additional packages are required:
+
+```bash
+sudo tlmgr install collection-fontsrecommended
+sudo tlmgr install mdframed
+sudo tlmgr install needspace
+sudo tlmgr install ucharcat
++sudo tlmgr install tcolorbox
++sudo tlmgr install environ
++sudo tlmgr install trimspaces
+```
+
 **Example script for generating individual PDF policy documents:**
 
 ```bash
@@ -125,23 +199,6 @@ pandoc intro.md model.md *.md -f markdown -t latex --pdf-engine=xelatex --toc -o
 mkdir docx
 pandoc intro.md model.md *.md -f markdown -t docx --toc -o ./docx/infosec-policies.docx
 ```
-
-### Publishing policies and procedures to JupiterOne
-
-If you have an account on the JupiterOne security platform (https://jupiterone.io),
-you can run the following command to publish the contents of your policies and
-procedures to your JupiterOne account, so that you and others in your organization
-can access them online.
-
-```bash
-./bin/psp publish -a j1accountId -c path/to/your/config.json -t ./templates -u j1userId
-```
-
-The `publish` command will prompt you to enter the password for your JupiterOne
-user account. You can also supply the API Token instead of a password with the
-`-k | --api-token` option.
-
-Your JupiterOne user must have administrator privilege to publish the contents.
 
 ### Generating Self Assessment Reports
 
