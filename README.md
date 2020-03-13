@@ -43,7 +43,7 @@ For more detailed builder instructions, see the README [here][builder].
 
 ### Publishing policies and procedures to JupiterOne
 
-If you have an account on the JupiterOne security platform (https://jupiterone.io),
+If you have an account on the [JupiterOne security platform](https://jupiterone.io),
 you can run the following command to publish the contents of your policies and
 procedures to your JupiterOne account, so that you and others in your organization
 can access them online.
