@@ -85,7 +85,7 @@ test.cb('psp-builder exposes templates dir on first use', t => {
   const jsonFile = path.join(fixturesDir, 'populated_config.json');
   execFile(cli, ['build', '-n', '-c', jsonFile, '-t', defaultTemplatesDir], { cwd: t.context.workDir }, function (err, stdout, stderr) {
     if (err) {
-      t.fail(err);
+      t.fail(err.message);
       t.end();
     }
 
