@@ -1,6 +1,6 @@
 {
   "name": "@jupiterone/security-policy-builder",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "description": "Configurable compilation of policies, standards, and procedures documentation.",
   "author": "JupiterOne <hello@jupiterone.io>",
   "keywords": [
