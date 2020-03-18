@@ -26,5 +26,5 @@ wYrCSlWQXDJB+rlru0SNVQEfFBEBcfUJ6tdCeFyu2uUv49KwsXroCLumDUE13RX0saw3J6TE1dEt5LOm
   on:
     tags: true
     branch: master
-    repo: JupiterOne/jupiter-policy-builder
+    repo: JupiterOne/security-policy-builder
     node: '8'
