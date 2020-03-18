@@ -46,15 +46,15 @@ async function main () {
 // ensure user supplied necessary params
 async function validateInputs () {
   if (!program.account || program.account === '') {
-    error.fatal('Missing -a|--account flag!', EUSAGEERROR);
+    error.fatal('Missing -a|--account input!', EUSAGEERROR);
   }
 
-  if (!program.user || program.user === '') {
-    error.fatal('Missing -u|--user flag!', EUSAGEERROR);
+  if ((!program.user || program.user === '') && !program.apiToken) {
+    error.fatal('Missing -u|--user or -k|--api-token input!', EUSAGEERROR);
   }
 
   if (!program.config || program.config === '') {
-    error.fatal('Missing -c|--config flag!', EUSAGEERROR);
+    error.fatal('Missing -c|--config input!', EUSAGEERROR);
   }
   if (!program.apiToken) {
     await gatherPassword();
