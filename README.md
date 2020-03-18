@@ -21,7 +21,7 @@ You will be prompted for a few inputs, such as company name, to be included in
 your policy text.
 
 ```bash
-npm install -g @jupiterone/jupiter-policy-builder
+npm install -g @jupiterone/security-policy-builder
 
 psp build
 ```
