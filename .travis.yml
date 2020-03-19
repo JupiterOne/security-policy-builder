@@ -1,6 +1,5 @@
 language: node_js
 node_js:
-  - '8'
   - '10'
   - '12'
 
@@ -27,4 +26,4 @@ wYrCSlWQXDJB+rlru0SNVQEfFBEBcfUJ6tdCeFyu2uUv49KwsXroCLumDUE13RX0saw3J6TE1dEt5LOm
     tags: true
     branch: master
     repo: JupiterOne/security-policy-builder
-    node: '8'
+    node: '10'

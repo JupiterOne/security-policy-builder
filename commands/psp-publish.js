@@ -2,7 +2,7 @@
 
 const J1_USER_POOL_ID = process.env.J1_USER_POOL_ID || 'us-east-2_9fnMVHuxD';
 const J1_CLIENT_ID = process.env.J1_CLIENT_ID || '1hcv141pqth5f49df7o28ngq1u';
-const JupiterOneClient = require('@jupiterone/jupiterone-client-nodejs/src/j1client');
+const JupiterOneClient = require('@jupiterone/jupiterone-client-nodejs');
 const ProgressBar = require('progress');
 const { prompt } = require('inquirer');
 const program = require('commander');
@@ -10,19 +10,24 @@ const error = require('../lib/error');
 const path = require('path');
 const fs = require('fs');
 const pAll = require('p-all');
+const pThrottle = require('p-throttle');
 
 const EUSAGEERROR = 126;
-const MAX_CONCURRENCY = 5;
+const MAX_CONCURRENCY = 2;
+const DEFAULT_THROTTLE = 2500;
+
+let shouldUpdateRelationships = false;
 
 async function main () {
   program
     .version(require('../package').version, '-v, --version')
     .usage('[options]')
-    .option('-a, --account <name>', 'JupiterOne account name.')
+    .option('-a, --account <name>', 'JupiterOne account name')
     .option('-c, --config <file>', 'path to config file')
     .option('-t, --templates [dir]', 'optional path to templates directory', 'templates')
-    .option('-u, --user <email>', 'JupiterOne user email.')
-    .option('-k, --api-token <api_token>', 'JupiterOne API Token.')
+    .option('-u, --user <email>', 'JupiterOne user email')
+    .option('-k, --api-token <api_token>', 'JupiterOne API token')
+    .option('-f, --force-update', 'force update all items instead of only those items modified with a newer timestamp')
     .option('-n, --noninteractive', 'do not prompt for confirmation, expect password on stdin')
     .parse(process.argv);
 
@@ -155,24 +160,28 @@ async function findAccountEntity (j1Client, accountName) {
 
 async function readTemplateData (config) {
   const data = {};
+  const timestamps = {};
   const todos = [];
   const sections = ['policies', 'procedures', 'references'];
   const templateCount = sections.reduce((acc, cv) => { return acc + config[cv].length; }, 0);
   process.stdout.write(`Scanning ${templateCount} template files for publishing... `);
   sections.forEach(section => {
+    data[section] = {};
+    timestamps[section] = {};
     config[section].forEach(configItem => {
-      data[section] = {};
       const tmplPath = path.join(program.templates, configItem.file + '.tmpl');
       const work = async () => {
         const tmplData = await readFilePromise(tmplPath);
+        const updatedOn = (await getFileUpdatedTimePromise(tmplPath)).getTime();
         data[section][configItem.id] = tmplData;
+        timestamps[section][configItem.id] = updatedOn;
       };
       todos.push(work);
     });
   });
   await pAll(todos, { concurrency: MAX_CONCURRENCY });
   console.log('OK!');
-  return data;
+  return { data, timestamps };
 }
 
 async function storeConfigWithAccount (j1Client, configData) {
@@ -204,10 +213,40 @@ async function upsertConfigData (j1Client, config, templateData, section) {
   const entities = await j1Client.queryV1(`find ${entityType}`);
   console.log(`Found ${entities.length} existing ${entityType} entities in JupiterOne graph.`);
   console.log(`Publishing ${adoptedItems.length} configured and adopted ${entityType} entities...`);
-  const todos = [];
-  const bar = new ProgressBar(':bar', { total: adoptedItems.length + 1, clear: true, width: 50 });
+  const bar = new ProgressBar(':bar', { total: adoptedItems.length + 1, clear: false, width: 50 });
   bar.tick(); // start drawing progress bar to screen
-  adoptedItems.forEach(item => {
+
+  let published = 0;
+
+  const throttled = pThrottle(async (item, properties, existing) => {
+    const rawDataUpsertOn =
+      templateDataUpsertBuilder(j1Client, templateData, section, item.id);
+
+    if (!existing) {
+      const entityKey =
+        `j1:${program.account}:${entityType.replace(/_/g, '-')}:${item.id}`;
+      const res = await j1Client.createEntity(
+        entityKey,
+        entityType,
+        j1qlLookup[section].class,
+        properties);
+      const entityId = res.vertex.entity._id;
+      await rawDataUpsertOn(entityId);
+    } else {
+      await j1Client.updateEntity(existing.entity._id,
+        {
+          _class: j1qlLookup[section].class,
+          ...properties
+        }
+      );
+      await rawDataUpsertOn(existing.entity._id);
+    }
+  }, 1, DEFAULT_THROTTLE);
+
+  for (const item of adoptedItems) {
+    const updatedOn = templateData.timestamps[section][item.id];
+    const existing = entities.filter(e => e.properties.id === item.id).pop();
+
     const properties = {
       'tag.AccountName': program.account,
       id: item.id,
@@ -219,44 +258,35 @@ async function upsertConfigData (j1Client, config, templateData, section) {
       summary: item.summary,
       type: item.type,
       webLink: item.webLink || null,
-      createdOn: (new Date()).getTime(),
-      updatedOn: (new Date()).getTime()
+      createdOn: existing ? existing.properties.createdOn : updatedOn,
+      updatedOn: updatedOn
     };
 
-    // TODO: account for rename/deletions in graph... changing the id will result in creating a new entity, orphaning old
-    const existing = entities.filter(e => e.properties.id === item.id).pop();
-    const rawDataUpsertOn = templateDataUpsertBuilder(j1Client, templateData, section, item.id);
-    let work;
-
     if (!existing) {
-      work = async () => {
-        const res = await j1Client.createEntity(
-          `j1:${program.account}:${entityType.replace(/_/g, '-')}:${item.id}`,
-          entityType,
-          j1qlLookup[section].class,
-          properties);
-        const entityId = res.vertex.entity._id;
-        await rawDataUpsertOn(entityId);
-        bar.tick();
-      };
+      await throttled(item, properties);
+      bar.tick();
+      published++;
+    } else if (existing.properties.updatedOn < updatedOn || program.forceUpdate) {
+      await throttled(item, properties, existing);
+      bar.tick();
+      published++;
     } else {
-      work = async () => {
-        await j1Client.updateEntity(existing.entity._id,
-          {
-            _class: j1qlLookup[section].class,
-            ...properties
-          }
-        );
-        await rawDataUpsertOn(existing.entity._id);
-        bar.tick();
-      };
+      bar.tick();
     }
-    todos.push(work); // create or update entity, upsert template data
-  });
-  await pAll(todos, { concurrency: MAX_CONCURRENCY });
+  }
+
+  if (published > 0) {
+    shouldUpdateRelationships = true;
+    console.log(`Created/updated ${published} ${entityType} entities.\n`);
+  } else {
+    console.log(`No change detected. Use -f option to force update if needed.\n`);
+  }
 }
 
 async function upsertImplementsRelationships (j1Client, config) {
+  if (!shouldUpdateRelationships) {
+    return;
+  }
   const rels = (await j1Client.queryV1('find (security_procedure|security_document) that IMPLEMENTS as edge security_policy return edge')).map(v => v.edge);
   console.log(`Found ${rels.length} existing IMPLEMENTS relationships...`);
 
@@ -273,39 +303,32 @@ async function upsertImplementsRelationships (j1Client, config) {
   });
   console.log('OK!');
 
-  const todos = [];
-  const warns = [];
-
   console.log(`Publishing ${allPolicyImplementorEntities.length} relationships... `);
   const bar = new ProgressBar(':bar', { total: allPolicyImplementorEntities.length + 1, clear: true, width: 50 });
   bar.tick();
 
-  allPolicyEntities.forEach(policy => {
+  const throttled = pThrottle(async (policy, implementor) => {
+    const relKey = `j1:${program.account}:procedure-implements-policy:${implementor.properties.id}:${policy.properties.id}`;
+    const relType = 'procedure|implements|policy';
+    const relClass = 'IMPLEMENTS';
+
+    await j1Client.createRelationship(relKey, relType, relClass, implementor.entity._id, policy.entity._id);
+    bar.tick();
+  }, 1, DEFAULT_THROTTLE);
+
+  for (const policy of allPolicyEntities) {
     // find config for current policy, which contains an array of procedures/references that implement it...
     const policyConfig = config.policies.find(p => p.id === policy.properties.id);
     if (!policyConfig) {
-      warns.push(`Unable to find a matching policy configuration in '${program.config}' for existing graph entity '${policy.properties.id}'. Ignored.`);
-      return;
+      console.warn(`Unable to find a matching policy configuration in '${program.config}' for existing graph entity '${policy.properties.id}'. Ignored.`);
+      continue;
     }
     // get array of entities that implement the current policy entity...
     const implementors = allPolicyImplementorEntities.filter(i => policyConfig.procedures.includes(i.properties.id));
-    implementors.forEach(implementor => {
-      const relKey = `j1:${program.account}:procedure-implements-policy:${implementor.properties.id}:${policy.properties.id}`;
-      const relType = 'procedure|implements|policy';
-      const relClass = 'IMPLEMENTS';
-
-      const work = async () => {
-        await j1Client.createRelationship(relKey, relType, relClass, implementor.entity._id, policy.entity._id);
-        bar.tick();
-      };
-      todos.push(work);
-    });
-  });
-
-  await pAll(todos, { concurrency: MAX_CONCURRENCY });
-  warns.forEach(warning => {
-    console.warn(warning);
-  });
+    for (const implementor of implementors) {
+      await throttled(policy, implementor);
+    }
+  }
 }
 
 async function readFilePromise (filePath) {
@@ -317,10 +340,19 @@ async function readFilePromise (filePath) {
   });
 }
 
+async function getFileUpdatedTimePromise (filePath) {
+  return new Promise((resolve, reject) => {
+    fs.stat(filePath, 'utf-8', (err, stats) => {
+      if (err) reject(err);
+      resolve(stats.mtime);
+    });
+  });
+}
+
 function templateDataUpsertBuilder (j1Client, templateData, configSection, templateId) {
   return async (entityId) => {
     const name = `policy_template_${configSection}_${templateId}`;
-    if (!await j1Client.upsertEntityRawData(entityId, name, 'text/html', templateData[configSection][templateId])) {
+    if (!await j1Client.upsertEntityRawData(entityId, name, 'text/html', templateData.data[configSection][templateId])) {
       error.warn(`Error storing PSP template data (${configSection}/${templateId}).`);
     }
   };
