@@ -22,7 +22,8 @@
     "mkdocs": "make mkdocs",
     "pretest": "eslint .",
     "test": "nyc ava",
-    "lcov": "nyc --reporter=html ava; open $(git rev-parse --show-toplevel)/coverage/index.html"
+    "lcov": "nyc --reporter=html ava; open $(git rev-parse --show-toplevel)/coverage/index.html",
+    "local-publish": "export $(grep -v '^#' .env | xargs); ./bin/psp publish -n -c ./config.json -t ./templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN"
   },
   "files": [
     "bin",
@@ -44,6 +45,7 @@
     "mustache": "^2.3.0",
     "p-all": "^2.1.0",
     "p-map": "^1.2.0",
+    "p-throttle": "^3.1.0",
     "pluralize": "^7.0.0",
     "progress": "^2.0.3",
     "request": "^2.87.0",
