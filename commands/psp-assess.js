@@ -49,6 +49,8 @@ if (!program.templates) {
   const localTemplates = path.join(projectDir, 'templates');
   const npmTemplates = path.join(projectDir, DEFAULT_TEMPLATES);
   program.templates = fs.pathExistsSync(localTemplates) ? localTemplates : npmTemplates;
+} else {
+  program.templates = path.resolve(program.templates);
 }
 
 const paths = {
@@ -132,7 +134,7 @@ async function main (config) {
     const inputGaps = calculateInputGaps(inputs);
 
     // tabulate gaps in controls/procedures
-    const { cpGaps, annotatedRefs } = await assessment.calculateCPGaps(standard, config);
+    const { cpGaps, annotatedRefs } = await assessment.calculateCPGaps(standard, config, paths);
 
     const allGaps = inputGaps.concat(cpGaps);
 
