@@ -1,7 +1,9 @@
 'use strict';
 
+const JupiterOneClient = require('@jupiterone/jupiterone-client-nodejs');
 const configure = require('../lib/configure');
 const program = require('commander');
+const { prompt } = require('inquirer');
 const assessment = require('../lib/assessment');
 const moment = require('moment');
 const chalk = require('chalk');
@@ -25,10 +27,14 @@ if (!projectDir) {
 program
   .version(require('../package').version, '-v, --version')
   .usage('--standard <compliance_standard> --config <file> [options]')
-  .option('-s, --standard <compliance_standard>', 'compliance standard to assess against.')
+  .option('-s, --standard <compliance_standard>', 'compliance standard to assess against, e.g. hipaa')
   .option('-c, --config <file>', 'JSON config file')
   .option('-o, --output [dir]', 'optional output directory', 'assessments')
-  .option('-t, --templates [dir]', 'optional path to template files.')
+  .option('-t, --templates [dir]', 'optional path to template files')
+  .option('-r, --include-risks', 'include items from JupiterOne Risk Register (requires -a and -u/-k to authenticate to JupiterOne account)')
+  .option('-a, --account <name>', 'JupiterOne account id')
+  .option('-u, --user <email>', 'JupiterOne user email')
+  .option('-k, --api-token <api_token>', 'JupiterOne API token')
   .parse(process.argv);
 
 if (!program.standard || !program.config) {
@@ -60,8 +66,63 @@ try {
   error.fatal(`Unable to load configuration from ${configFile} : ${err}`, EUSAGEERROR);
 }
 
+// Note: this will happily read from STDIN if data is piped in...
+// e.g. if lastpass is installed:
+// lpass show MyJ1Password | psp publish -u my.user@domain.tld -a myaccount
+async function gatherPassword () {
+  const answer = await prompt([
+    {
+      type: 'password',
+      name: 'password',
+      message: 'JupiterOne password:'
+    }
+  ]);
+  program.password = answer.password;
+}
+
+async function initializeJ1Client () {
+  process.stdout.write('Authenticating with JupiterOne... ');
+  const j1Options = {
+    account: program.account
+  };
+
+  if (program.apiToken) {
+    j1Options.accessToken = program.apiToken;
+  } else {
+    j1Options.username = program.user;
+    j1Options.password = program.password;
+  }
+
+  const j1Client = await (new JupiterOneClient(j1Options)).init();
+  console.log('OK!');
+  return j1Client;
+}
+
+async function getRisksFromRegistry () {
+  if (program.account) {
+    if (!program.apiToken) {
+      if (program.user) {
+        await gatherPassword();
+      } else {
+        error.fatal('Missing -u|--user or -k|--api-token input!', EUSAGEERROR);
+      }
+    }
+
+    const j1Client = await initializeJ1Client();
+    return j1Client.queryV1('find Risk with _beginOn > date.now - 1year');
+  }
+}
+
 async function main (config) {
   try {
+    let riskList;
+    if (program.includeRisks) {
+      const riskEntities = await getRisksFromRegistry();
+      riskList = assessment.generateRiskList(riskEntities);
+    } else {
+      riskList = 'Detailed risk items omitted.';
+    }
+
     const inputs = await gatherInputs(config.organization);
     const standard = program.standard.toLowerCase();
 
@@ -78,7 +139,7 @@ async function main (config) {
     const gapSummary = assessment.generateGapSummary(allGaps, config, standard);
     const gapList = assessment.generateGapList(allGaps);
     const hipaaControlsMapping = assessment.generateStandardControlsMapping(annotatedRefs, config);
-    Object.assign(inputs, {gapList, gapSummary, hipaaControlsMapping});
+    Object.assign(inputs, {gapList, gapSummary, hipaaControlsMapping, riskList});
 
     console.log(`Generating ${standard.toUpperCase()} self-assessment report...`);
     await assessment.generateReport(inputs, standard, paths);

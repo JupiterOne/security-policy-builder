@@ -1,7 +1,7 @@
 'use strict';
 
-const J1_USER_POOL_ID = process.env.J1_USER_POOL_ID || 'us-east-2_9fnMVHuxD';
-const J1_CLIENT_ID = process.env.J1_CLIENT_ID || '1hcv141pqth5f49df7o28ngq1u';
+const J1_USER_POOL_ID = process.env.J1_USER_POOL_ID;
+const J1_CLIENT_ID = process.env.J1_CLIENT_ID;
 const JupiterOneClient = require('@jupiterone/jupiterone-client-nodejs');
 const ProgressBar = require('progress');
 const { prompt } = require('inquirer');
@@ -22,7 +22,7 @@ async function main () {
   program
     .version(require('../package').version, '-v, --version')
     .usage('[options]')
-    .option('-a, --account <name>', 'JupiterOne account name')
+    .option('-a, --account <name>', 'JupiterOne account id')
     .option('-c, --config <file>', 'path to config file')
     .option('-t, --templates [dir]', 'optional path to templates directory', 'templates')
     .option('-u, --user <email>', 'JupiterOne user email')
