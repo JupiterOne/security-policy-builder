@@ -60,14 +60,15 @@ Your JupiterOne user must have administrator privilege to publish the contents.
 
 ## Advanced steps to build and deploy policies
 
-### From docker zipfile
+### With docker image
 
-If you've received this project as a zip intended for Docker usage, simply:
+If you'd like to keep the dependencies self-contained, you can build and use a
+Docker image via:
 
-  1. `unzip pspbuilder-docker.zip`
   1. `docker build -t pspbuilder .`
-  1. `docker run -it -v$(pwd):/opt --rm pspbuilder psp build -c config.json`
-  1. `docker run -it -v$(pwd):/opt --rm pspbuilder mkdocs build -f docker-mkdocs.yml`
+  1. `cd` into the directory containing your local templates dir (if any) and config file
+  1. `docker run -it -v$(pwd):/mnt --rm pspbuilder psp build -c /mnt/config.json -t /mnt/templates -o /mnt/docs -p /mnt/partials`
+  1. `docker run -it -v$(pwd):/mnt --rm pspbuilder mkdocs build -f /mnt/docker-mkdocs.yml`
 
 This will generate a `docs` directory containing Markdown files, and a `site`
 directory containing HTML files which may be statically served.
@@ -147,7 +148,7 @@ NOTE: on OSX systems, you will likely also need to install XeLaTeX from here:
 [http://www.texts.io/support/0001/](http://www.texts.io/support/0001/)
 
 #### Example steps for macOS
-  
+
 Install **Pandoc**:
 
 ```bash
