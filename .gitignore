@@ -8,6 +8,7 @@ node_modules/
 !/static/**
 !/assessments/mkdocs.yml
 !/bin
+!/ci_bin
 !/commands/**
 !/lib/**
 !/util/
