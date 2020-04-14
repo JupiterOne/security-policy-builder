@@ -1,26 +1,28 @@
 language: node_js
 node_js:
-  - '10'
-  - '12'
-
+- '10'
+- '12'
 notifications:
   email:
     on_success: never
     on_failure: always
-
-script: yarn build
-
+script:
+- echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
+env:
+  global:
+  - DOCKER_USERNAME=j1travis
+  - secure: E6VSdD1Pn6Mk+L4q3pKcCKl82qricIehCtgAvSSZ7SJrPbuXvqKNIFcTCzUxf3ZEvF45U6NJSAcyocZSeOME6ccG3UXIaNr9lqsz8cerESv/z+BhdnSBZvzCbBKTRcJU+tJWQG1yb+1sdRkNTtN4hU90zra+DzigRUIqF0VX77EKxeOTR3bsJk/TLBhn2JqkchAo2enzuanUwg+cAwyKRHHfnct9RkF0s+AepbbZmzaI6xZFxfpwhDEd4MC+QwpSfGQD3OHQEDmosTVt3ZLQSBW/87uGvqx8RFNO8l5q9KBuNT5N9yn3lM1XAnfG0IPdPhyiyir/4a+CYFDhMTaOVxPL9Rs/nSN1W7WjenISER7dnkBLgY8A7oqY16jpLRQ0gXKkEadniaxEamVtNrCWzEBGEG9o9CiokVID+HR7ppWncpkS8DZqbConziVCh0msoncfiRXdEx1uLbXncVlisPFPyL6F67/N164F1cNWGJtlUuE6jautMG6aOEbY0Hs+s17GVUBoKpd/9IllJSHcnar+V0KCpqPLAo7u9zoEmBFM0pWAQRt4EhhJXlEeQjtTWMpGwnCvJg9S0s10N3+eFRhmg/H81KscKc8RRFoUlftUUmXcGNhE0aC7z9AxzEKbKV+kKTMm/k2Hr2u15MXXHAAS2QWGQuk0urG0ZdanG5A=
 deploy:
   provider: npm
   email: npm@jupiterone.io
   api_key:
-    secure: 'ZMZSOyDrZfTEbM6DvbSAnsY0ez6e5RGcT/6qeiuer9r3otFsG03VOaYOiM+OljF4PLGblrUZoUUkLrS+vKlDImXGhK/F5LGzW7c10EF9LXilWNcWP
-Ms2XT8VZQrD13l+14tzqhGwjsxptTkEyRiou7MNxSt8BSvbVBYKKZUCfHhEDSR64w4ivSi4qdQ+C5LhCR3nCjtwRfiX9uv6YBHip2/W/C8ZMZFJpnd
-tc9gIE+q3gnPQfPS6Oy0uiPPUAII3rdEX7mk0sKGQvycZH8DL0KM5kyt6DAplbEiG1Zw2qkcICTL5oyVBgg9yW12RDVKy9GJunsBOzfTkZWATMfmDN
-GVaaBEAAOOYf5pu3vvfjaSZ6IOV+6QO2e2NLbpcsOv1LcDaYv1xljM+GoVFFGLRxUGxdj6z/XkddhlJ4nc7RSszwQSIlpBNrsvDdYmB7p/fAPiLnGX
-tNT0yMT2mnFjEhj8KtXu6boRQUey53WPRtb4mtnoBaerKv2KaigoPN/gYk6JB+QzQ3YAJiZUAz2IS+fMt0w3EuvEMgfMUXbqR/8KxwMBb5kBb+oc3C
-wYrCSlWQXDJB+rlru0SNVQEfFBEBcfUJ6tdCeFyu2uUv49KwsXroCLumDUE13RX0saw3J6TE1dEt5LOmzFamTLn6I0KuPCTg4n9GvNvEfCIB8NthIE
-='
+    secure: ZMZSOyDrZfTEbM6DvbSAnsY0ez6e5RGcT/6qeiuer9r3otFsG03VOaYOiM+OljF4PLGblrUZoUUkLrS+vKlDImXGhK/F5LGzW7c10EF9LXilWNcWP
+      Ms2XT8VZQrD13l+14tzqhGwjsxptTkEyRiou7MNxSt8BSvbVBYKKZUCfHhEDSR64w4ivSi4qdQ+C5LhCR3nCjtwRfiX9uv6YBHip2/W/C8ZMZFJpnd
+      tc9gIE+q3gnPQfPS6Oy0uiPPUAII3rdEX7mk0sKGQvycZH8DL0KM5kyt6DAplbEiG1Zw2qkcICTL5oyVBgg9yW12RDVKy9GJunsBOzfTkZWATMfmDN
+      GVaaBEAAOOYf5pu3vvfjaSZ6IOV+6QO2e2NLbpcsOv1LcDaYv1xljM+GoVFFGLRxUGxdj6z/XkddhlJ4nc7RSszwQSIlpBNrsvDdYmB7p/fAPiLnGX
+      tNT0yMT2mnFjEhj8KtXu6boRQUey53WPRtb4mtnoBaerKv2KaigoPN/gYk6JB+QzQ3YAJiZUAz2IS+fMt0w3EuvEMgfMUXbqR/8KxwMBb5kBb+oc3C
+      wYrCSlWQXDJB+rlru0SNVQEfFBEBcfUJ6tdCeFyu2uUv49KwsXroCLumDUE13RX0saw3J6TE1dEt5LOmzFamTLn6I0KuPCTg4n9GvNvEfCIB8NthIE
+      =
   skip_cleanup: true
   on:
     tags: true
