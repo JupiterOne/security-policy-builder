@@ -29,6 +29,6 @@ deploy:
       repo: JupiterOne/security-policy-builder
       node: '10'
   - provider: script
-    script: bash docker_push
+    script: bash ci_bin/docker_push
     on:
       branch: master
