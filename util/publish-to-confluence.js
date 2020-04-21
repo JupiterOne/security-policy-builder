@@ -53,6 +53,15 @@ async function gatherCreds () {
   };
 }
 
+function parseLinks (pageUrl, html, confluencePages) {
+  const linkRegex = /href=['"]([\w-]+\.md)(#.*)?['"]/gm;
+  const match = linkRegex.exec(html);
+
+  return match
+    ? html.replace(linkRegex, `href="${pageUrl}/${confluencePages[match[1]]}"`)
+    : html;
+}
+
 async function getVersion (headers, page) {
   const options = {
     method: 'get',
@@ -72,7 +81,9 @@ async function publish () {
 
   const { domain, space, username, password } = await gatherCreds();
 
-  const baseUrl = `https://${domain || CONFLUENCE_DOMAIN}.atlassian.net/wiki/rest/api/content`;
+  const site = `https://${domain || CONFLUENCE_DOMAIN}.atlassian.net`;
+  const baseUrl = `${site}/wiki/rest/api/content`;
+  const pageUrl = `${site}/wiki/spaces/${space || CONFLUENCE_SPACE}/pages`;
 
   const headers = {
     'Content-Type': 'application/json',
@@ -90,7 +101,7 @@ async function publish () {
   const failed = [];
 
   const docs = fs.readdirSync(docsPath);
-  
+
   for (const doc of docs) {
     const pageId = confluencePages[doc];
     const currentVersion = pageId && await getVersion(headers, `${baseUrl}/${pageId}`);
@@ -110,6 +121,7 @@ async function publish () {
         .replace(/<\/table>/g, '</table><br/>')
         .replace(/<br>/g, '<br/>')
         .replace(/<#>/g, '&lt;#&gt;');
+      const parsedHtml = parseLinks(pageUrl, html, confluencePages);
 
       const match = data.match(/^#{1,2}(.*)$/m); // Title
       if (!match) {
@@ -128,7 +140,7 @@ async function publish () {
         },
         body: {
           storage: {
-            value: html,
+            value: parsedHtml,
             representation: 'storage'
           }
         }
@@ -148,7 +160,7 @@ async function publish () {
         worked.push(doc);
       } else {
         failed.push(doc);
-        fs.writeFileSync(`./failed-${doc}.html`, html);
+        fs.writeFileSync(`./failed-${doc}.html`, parsedHtml);
         console.error(`publish to confluence failed for ${doc}`);
         console.error({response: await response.json()});
         continue;
