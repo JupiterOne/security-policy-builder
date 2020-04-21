@@ -43,6 +43,7 @@
     "joi": "^13.1.2",
     "moment": "^2.22.2",
     "mustache": "^2.3.0",
+    "node-fetch": "^2.6.0",
     "p-all": "^2.1.0",
     "p-map": "^1.2.0",
     "p-throttle": "^3.1.0",
@@ -50,6 +51,8 @@
     "progress": "^2.0.3",
     "request": "^2.87.0",
     "request-promise": "^4.2.2",
+    "request-promise-native": "^1.0.8",
+    "showdown": "^1.9.1",
     "strip-ansi": "^4.0.0",
     "valid-url": "^1.0.9"
   },
