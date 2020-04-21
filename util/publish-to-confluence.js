@@ -25,7 +25,7 @@ async function gatherCreds() {
     {
       type: "input",
       name: "domain",
-      message: "Confluence domain:",
+      message: "Confluence domain (the vanity subdomain before '.atlassian.net'):",
     },
     {
       type: "input",
