@@ -58,6 +58,31 @@ user account. You can also supply the API Token instead of a password with the
 
 Your JupiterOne user must have administrator privilege to publish the contents.
 
+### Publishing policies and procedures to Confluence
+
+You can also publish the policies to a Confluence wiki space. Simply run the
+`psp publish` command with the `--confluence` option.
+
+```bash
+./bin/psp publish --confluence
+```
+
+You will be prompted to enter your Confluence domain and space key, and
+username/password:
+
+```bash
+? Confluence domain (the vanity subdomain before '.atlassian.net'): 
+? Confluence space key: 
+? Confluence username: 
+? Confluence password: [hidden]
+Published 35 docs to Confluence.
+```
+
+The program will save the page ID for each published policy document locally to
+a file in the current directory: `confluence-pages.json`. Make sure this file
+is **retained** because the program will use the page ID for each policy to
+update the Confluence page the next time it is run.
+
 ## Advanced steps to build and deploy policies
 
 ### With docker image
