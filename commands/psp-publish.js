@@ -7,6 +7,7 @@ const ProgressBar = require("progress");
 const { prompt } = require("inquirer");
 const program = require("commander");
 const error = require("../lib/error");
+const confluence = require("../lib/publish-to-confluence");
 const path = require("path");
 const fs = require("fs");
 const pAll = require("p-all");
@@ -39,7 +40,13 @@ async function main() {
       "-n, --noninteractive",
       "do not prompt for confirmation, expect password on stdin"
     )
+    .option("--confluence", "publish to a Confluence wiki space")
     .parse(process.argv);
+
+  if (program.confluence) {
+    await confluence.publish();
+    process.exit(0);
+  }
 
   await validateInputs();
 
