@@ -51,7 +51,6 @@
     "progress": "^2.0.3",
     "request": "^2.87.0",
     "request-promise": "^4.2.2",
-    "request-promise-native": "^1.0.8",
     "showdown": "^1.9.1",
     "strip-ansi": "^4.0.0",
     "valid-url": "^1.0.9"

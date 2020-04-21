@@ -3,9 +3,9 @@
 const { prompt } = require('inquirer');
 const path = require('path');
 const fs = require('fs');
-const rp = require("request-promise-native");
 const fetch = require('node-fetch');
 const showdown = require('showdown');
+const error = require('../lib/error');
 
 const converter = new showdown.Converter(
   {
@@ -14,6 +14,8 @@ const converter = new showdown.Converter(
     tables: true
   }
 );
+
+const CONFLUENCE_PAGES = './confluence-pages.json';
 
 const CONFLUENCE_DOMAIN = process.env.CONFLUENCE_DOMAIN;
 const CONFLUENCE_SPACE = process.env.CONFLUENCE_SPACE;
@@ -51,48 +53,74 @@ async function gatherCreds () {
   };
 }
 
-async function publish () {
-  const { domain, space, username, password } = await gatherCreds();
-
-  const baseUrl = `http://${domain || CONFLUENCE_DOMAIN}.atlassian.net`;
-
-  const defaultOptions = {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      Authorization: `Basic ${Buffer.from(
-        (username || CONFLUENCE_USER) + ':' + (password || CONFLUENCE_PASS)
-      ).toString('base64')}`
-    }
+async function getVersion (headers, page) {
+  const options = {
+    method: 'get',
+    headers
   };
 
-  const request = rp.defaults({
-    baseUrl,
-    auth: {
-      user: username || CONFLUENCE_USER,
-      pass: password || CONFLUENCE_PASS
-    },
-    json: true
-  });
+  const response = await fetch(page, options);
+  const result = await response.json();
+  return result.version.number;
+}
 
-  const docs = fs.readdirSync(path.join(__dirname, '../docs'));
+async function publish () {
+  const docsPath = path.join(__dirname, '../docs');
+  if (!fs.existsSync(docsPath)) {
+    error.fatal('Please run `psp build` first to generate the policy docs.');
+  }
 
+  const { domain, space, username, password } = await gatherCreds();
+
+  const baseUrl = `https://${domain || CONFLUENCE_DOMAIN}.atlassian.net/wiki/rest/api/content`;
+
+  const headers = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    Authorization: `Basic ${Buffer.from(
+      (username || CONFLUENCE_USER) + ':' + (password || CONFLUENCE_PASS)
+    ).toString('base64')}`
+  };
+
+  const confluencePages = fs.existsSync(CONFLUENCE_PAGES)
+    ? JSON.parse(fs.readFileSync(CONFLUENCE_PAGES))
+    : {};
+
+  const worked = [];
+  const failed = [];
+
+  const docs = fs.readdirSync(docsPath);
+  
   for (const doc of docs) {
-    console.log({doc});
+    const pageId = confluencePages[doc];
+    const currentVersion = pageId && await getVersion(headers, `${baseUrl}/${pageId}`);
+    const version = currentVersion && { number: currentVersion + 1 };
 
     if (doc.endsWith('.md')) {
-      const data = fs.readFileSync(path.join(__dirname, '../docs/', doc), 'utf8')
-        .replace(/^ {2}(-|\*)/gm, '    -'); // fixes sublist indentation
-
-      const html = converter.makeHtml(data)
+      const data = fs.readFileSync(path.join(__dirname, '../docs/', doc), 'utf8');
+      const parsedData = data
+        .replace(/^#(.*)$/m, '') // removes title
+        .replace(/^ {2}(-|\*)/gm, '    -') // fixes sublist indentation
+        .replace(/&/gm, '&amp;')
+        .replace(/[‘’]/gm, `'`) // fixes quote character
+        .replace(/[“”]/gm, `"`);
+      const html = converter.makeHtml(parsedData)
         .replace(/<pre><code/g, '<pre><div')
         .replace(/<\/code><\/pre>/g, '</div></pre>')
-        .replace(/<\/table>/g, '</table><br>');
+        .replace(/<\/table>/g, '</table><br/>')
+        .replace(/<br>/g, '<br/>')
+        .replace(/<#>/g, '&lt;#&gt;');
 
-      const title = data.match(/^#(.*)$/m)[1].trim();
+      const match = data.match(/^#{1,2}(.*)$/m); // Title
+      if (!match) {
+        failed.push(doc);
+        console.error(`error parsing title for ${doc}`);
+        continue;
+      }
+      const title = match[1].trim();
 
       const body = {
+        version,
         type: 'page',
         title,
         space: {
@@ -106,20 +134,34 @@ async function publish () {
         }
       };
 
-      // const options = { ...defaultOptions, body: JSON.stringify(body) };
-      console.log(JSON.stringify(body, null, 2));
+      const options = {
+        method: pageId ? 'put' : 'post',
+        headers,
+        body: JSON.stringify(body)
+      };
 
-      // const response = await fetch(baseUrl, options);
-
-      const response = await request.post({
-        uri: '/wiki/rest/api/content',
-        body
-      });
-      // const result = await response.json();
-      console.log({response});
-      // console.log(JSON.stringify(result, null, 2));
-      break;
+      const uri = pageId ? `${baseUrl}/${pageId}` : baseUrl;
+      const response = await fetch(uri, options);
+      if (response.ok) {
+        const result = await response.json();
+        confluencePages[doc] = pageId || result.id;
+        worked.push(doc);
+      } else {
+        failed.push(doc);
+        fs.writeFileSync(`./failed-${doc}.html`, html);
+        console.error(`publish to confluence failed for ${doc}`);
+        console.error({response: await response.json()});
+        continue;
+      }
     }
+  }
+
+  fs.writeFileSync('./confluence-pages.json', JSON.stringify(confluencePages, null, 2));
+
+  console.log(`Published ${worked.length} docs to Confluence.`);
+  if (failed.length > 0) {
+    console.log(`${failed.length} failed:`);
+    console.log(failed.join('\n'));
   }
 }
 
