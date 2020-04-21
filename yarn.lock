@@ -326,10 +326,10 @@
   resolved "https://registry.yarnpkg.com/@jupiterone/jupiterone-alert-rules/-/jupiterone-alert-rules-0.3.0.tgz#224e2e5ab445ef21497e57a4b0cc2f4afc73504b"
   integrity sha512-BDAKVgL7TobJ3PD3Phioa0LgopEHzRelZSgiBjFvAMFR8wiQs4GE/iSt/tVENQP/kKDfQLyM0wiyaJlgdHLyhQ==
 
-"@jupiterone/jupiterone-client-nodejs@^0.19.1":
-  version "0.19.1"
-  resolved "https://registry.yarnpkg.com/@jupiterone/jupiterone-client-nodejs/-/jupiterone-client-nodejs-0.19.1.tgz#545853b63f486fddf7c91a2f19d3de739db5e2e1"
-  integrity sha512-koTLawW0cBOEEvqpoecpC5Y5id2u3xWqeT1M3GSlbG4I40kDGiHDQe/zlxxVv1Tl7g8xFHdaNz3CshpSfw++oQ==
+"@jupiterone/jupiterone-client-nodejs@^0.21.1":
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/@jupiterone/jupiterone-client-nodejs/-/jupiterone-client-nodejs-0.21.1.tgz#6ff16b4246a83e1fdaff3969d25dd34e2a3c39cd"
+  integrity sha512-JTeXh19dT9fbLWR10HHHuj+e5SBtpHvt0d0j+9P2/61FEF8UTOhZItj8C0F1kIMOQkcA0z7HxgN+xF5v3LkPgQ==
   dependencies:
     "@jupiterone/jupiterone-alert-rules" "^0.3.0"
     "@pollyjs/adapter-node-http" "^2.7.0"
@@ -361,7 +361,7 @@
     strip-ansi "^4.0.0"
     valid-url "^1.0.9"
 
-"@jupiterone/security-policy-templates@^2.7.0":
+"@jupiterone/security-policy-templates@^2.8.0":
   version "2.8.0"
   resolved "https://registry.yarnpkg.com/@jupiterone/security-policy-templates/-/security-policy-templates-2.8.0.tgz#d824459db1fa984ef1a1b749a123ea7210974b94"
   integrity sha512-jb7N18jQdXR/LMF1cvpwkuzS5afZGjUgAmWbO6XVfo3i4zj0yr1yvSnaNWAvDu0ov912LNFQv50wlu5QE9VQIg==
@@ -5379,15 +5379,6 @@ request-promise-core@1.1.3:
   integrity sha512-QIs2+ArIGQVp5ZYbWD5ZLCY29D5CfWizP8eWnm8FoGD1TX61veauETVQbrV60662V0oFBkrDOuaBI8XgtuyYAQ==
   dependencies:
     lodash "^4.17.15"
-
-request-promise-native@^1.0.8:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/request-promise-native/-/request-promise-native-1.0.8.tgz#a455b960b826e44e2bf8999af64dff2bfe58cb36"
-  integrity sha512-dapwLGqkHtwL5AEbfenuzjTYg35Jd6KPytsC2/TLkVMz8rm+tNt72MGUWT1RP/aYawMpN6HqbNGBQaRcBtjQMQ==
-  dependencies:
-    request-promise-core "1.1.3"
-    stealthy-require "^1.1.1"
-    tough-cookie "^2.3.3"
 
 request-promise@^4.2.2:
   version "4.2.5"
