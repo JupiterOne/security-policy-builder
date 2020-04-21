@@ -83,6 +83,8 @@ a file in the current directory: `confluence-pages.json`. Make sure this file
 is **retained** because the program will use the page ID for each policy to
 update the Confluence page the next time it is run.
 
+_We recommend creating a dedicated wiki space for these security policies._
+
 ## Advanced steps to build and deploy policies
 
 ### With docker image
