@@ -65,10 +65,10 @@ Your JupiterOne user must have administrator privilege to publish the contents.
 If you'd like to keep the dependencies self-contained, you can build and use a
 Docker image via:
 
-  1. `docker build -t pspbuilder .`
-  1. `cd` into the directory containing your local templates dir (if any) and config file
-  1. `docker run -it -v$(pwd):/mnt --rm pspbuilder psp build -c /mnt/config.json -t /mnt/templates -o /mnt/docs -p /mnt/partials`
-  1. `docker run -it -v$(pwd):/mnt --rm pspbuilder mkdocs build -f /mnt/docker-mkdocs.yml`
+1. `docker build -t pspbuilder .`
+1. `cd` into the directory containing your local templates dir (if any) and config file
+1. `docker run -it -v$(pwd):/mnt --rm pspbuilder psp build -c /mnt/config.json -t /mnt/templates -o /mnt/docs -p /mnt/partials`
+1. `docker run -it -v$(pwd):/mnt --rm pspbuilder mkdocs build -f /mnt/docker-mkdocs.yml`
 
 This will generate a `docs` directory containing Markdown files, and a `site`
 directory containing HTML files which may be statically served.
@@ -76,9 +76,9 @@ directory containing HTML files which may be statically served.
 These static files may be uploaded to a webserver, served from S3, etc. To view
 them locally, do:
 
-  1. `cd site`
-  1. `python3 -m http.server 8000`
-  1. `open http://localhost:8000`
+1. `cd site`
+1. `python3 -m http.server 8000`
+1. `open http://localhost:8000`
 
 ### Local CLI prerequisites and first steps
 
@@ -87,24 +87,24 @@ them locally, do:
 If you received this project as a zipfile intended for local installation,
 you'll need to install the latest Node v9 executable, via:
 
-  1. Install NVM with: `curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash`
-  1. Install Node with `nvm install $(cat .nvmrc)`
+1. Install NVM with: `curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash`
+1. Install Node with `nvm install $(cat .nvmrc)`
 
 #### From source
 
 If you have cloned this repository, you'll need to:
 
-  1. Ensure you have the [latest Node v9](https://nodejs.org/en/download/).
-  1. Execute `yarn install` to install the Node package dependencies.
-  1. Execute `yarn mkdocs` to install mkdocs.
+1. Ensure you have the [latest Node v9](https://nodejs.org/en/download/).
+1. Execute `yarn install` to install the Node package dependencies.
+1. Execute `yarn mkdocs` to install mkdocs.
 
-*★ Note: On a fresh macOS machine run the following commands to set up MkDocs.*
+_★ Note: On a fresh macOS machine run the following commands to set up MkDocs._
 
-~~~bash
+```bash
 pip install --upgrade pip
 pip install virtualenv
 pip install mkdocs mkdocs-material
-~~~
+```
 
 See http://www.mkdocs.org for more info.
 
@@ -130,16 +130,16 @@ root directory.
 
 For further instructions, see [MkDocs website](http://www.mkdocs.org/).
 
-Additionally, it uses `mkdocs-material` theme.  Instructions can be found
+Additionally, it uses `mkdocs-material` theme. Instructions can be found
 [here](https://squidfunk.github.io/mkdocs-material/getting-started/).
 
-*★ Note: Four spaces are used instead of two in nested lists to get around a
-rendering issue in MkDocs.*
+_★ Note: Four spaces are used instead of two in nested lists to get around a
+rendering issue in MkDocs._
 
 ### Generating PDF and Word documents
 
 `Pandoc` can be used to automatically convert the markdown files into PDF or
-Word documents.  This requires `pandoc` to be installed separately on your local
+Word documents. This requires `pandoc` to be installed separately on your local
 system. Follow the installation instructions here:
 
 [https://pandoc.org/installing.html](https://pandoc.org/installing.html)

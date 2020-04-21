@@ -15,6 +15,7 @@
   },
   "scripts": {
     "clean": "rm -rf -- *.log *.zip",
+    "format": "prettier --write '**/*.{ts,js,json,md}'",
     "build": "babel ./lib --out-dir ./dist",
     "prebuild": "yarn test",
     "zip": "make",
@@ -58,16 +59,18 @@
   "devDependencies": {
     "ava": "^2.4.0",
     "babel-cli": "^6.26.0",
+    "babel-eslint": "^10.1.0",
     "babel-preset-env": "^1.6.1",
-    "eslint": ">=4.12.1",
-    "eslint-config-semistandard": "12.0.0",
-    "eslint-config-standard": "^11.0.0-beta.0",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-node": "^6.0.0",
-    "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-standard": "^3.0.1",
+    "eslint": "^6.8.0",
+    "eslint-config-semistandard": "^15.0.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
     "nock": "^9.1.9",
-    "nyc": "^11.4.1"
+    "nyc": "^11.4.1",
+    "prettier": "^2.0.5"
   },
   "ava": {
     "files": [

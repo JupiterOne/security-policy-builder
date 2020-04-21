@@ -1,59 +1,57 @@
-'use strict';
+"use strict";
 
-const { prompt } = require('inquirer');
-const path = require('path');
-const fs = require('fs');
-const fetch = require('node-fetch');
-const showdown = require('showdown');
-const error = require('../lib/error');
+const { prompt } = require("inquirer");
+const path = require("path");
+const fs = require("fs");
+const fetch = require("node-fetch");
+const showdown = require("showdown");
+const error = require("../lib/error");
 
-const converter = new showdown.Converter(
-  {
-    parseImgDimensions: true,
-    simplifiedAutoLink: true,
-    tables: true
-  }
-);
+const converter = new showdown.Converter({
+  parseImgDimensions: true,
+  simplifiedAutoLink: true,
+  tables: true,
+});
 
-const CONFLUENCE_PAGES = './confluence-pages.json';
+const CONFLUENCE_PAGES = "./confluence-pages.json";
 
 const CONFLUENCE_DOMAIN = process.env.CONFLUENCE_DOMAIN;
 const CONFLUENCE_SPACE = process.env.CONFLUENCE_SPACE;
 const CONFLUENCE_USER = process.env.CONFLUENCE_USER;
 const CONFLUENCE_PASS = process.env.CONFLUENCE_PASS;
 
-async function gatherCreds () {
+async function gatherCreds() {
   const answer = await prompt([
     {
-      type: 'input',
-      name: 'domain',
-      message: 'Confluence domain:'
+      type: "input",
+      name: "domain",
+      message: "Confluence domain:",
     },
     {
-      type: 'input',
-      name: 'space',
-      message: 'Confluence space key:'
+      type: "input",
+      name: "space",
+      message: "Confluence space key:",
     },
     {
-      type: 'input',
-      name: 'username',
-      message: 'Confluence username:'
+      type: "input",
+      name: "username",
+      message: "Confluence username:",
     },
     {
-      type: 'password',
-      name: 'password',
-      message: 'Confluence password:'
-    }
+      type: "password",
+      name: "password",
+      message: "Confluence password:",
+    },
   ]);
   return {
     domain: answer.domain,
     space: answer.space,
     username: answer.username,
-    password: answer.password
+    password: answer.password,
   };
 }
 
-function parseLinks (pageUrl, html, confluencePages) {
+function parseLinks(pageUrl, html, confluencePages) {
   const linkRegex = /href=['"]([\w-]+\.md)(#.*)?['"]/gm;
   const match = linkRegex.exec(html);
 
@@ -62,10 +60,10 @@ function parseLinks (pageUrl, html, confluencePages) {
     : html;
 }
 
-async function getVersion (headers, page) {
+async function getVersion(headers, page) {
   const options = {
-    method: 'get',
-    headers
+    method: "get",
+    headers,
   };
 
   const response = await fetch(page, options);
@@ -73,10 +71,10 @@ async function getVersion (headers, page) {
   return result.version.number;
 }
 
-async function publish () {
-  const docsPath = path.join(__dirname, '../docs');
+async function publish() {
+  const docsPath = path.join(__dirname, "../docs");
   if (!fs.existsSync(docsPath)) {
-    error.fatal('Please run `psp build` first to generate the policy docs.');
+    error.fatal("Please run `psp build` first to generate the policy docs.");
   }
 
   const { domain, space, username, password } = await gatherCreds();
@@ -86,11 +84,11 @@ async function publish () {
   const pageUrl = `${site}/wiki/spaces/${space || CONFLUENCE_SPACE}/pages`;
 
   const headers = {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
     Authorization: `Basic ${Buffer.from(
-      (username || CONFLUENCE_USER) + ':' + (password || CONFLUENCE_PASS)
-    ).toString('base64')}`
+      (username || CONFLUENCE_USER) + ":" + (password || CONFLUENCE_PASS)
+    ).toString("base64")}`,
   };
 
   const confluencePages = fs.existsSync(CONFLUENCE_PAGES)
@@ -104,23 +102,28 @@ async function publish () {
 
   for (const doc of docs) {
     const pageId = confluencePages[doc];
-    const currentVersion = pageId && await getVersion(headers, `${baseUrl}/${pageId}`);
+    const currentVersion =
+      pageId && (await getVersion(headers, `${baseUrl}/${pageId}`));
     const version = currentVersion && { number: currentVersion + 1 };
 
-    if (doc.endsWith('.md')) {
-      const data = fs.readFileSync(path.join(__dirname, '../docs/', doc), 'utf8');
+    if (doc.endsWith(".md")) {
+      const data = fs.readFileSync(
+        path.join(__dirname, "../docs/", doc),
+        "utf8"
+      );
       const parsedData = data
-        .replace(/^#(.*)$/m, '') // removes title
-        .replace(/^ {2}(-|\*)/gm, '    -') // fixes sublist indentation
-        .replace(/&/gm, '&amp;')
+        .replace(/^#(.*)$/m, "") // removes title
+        .replace(/^ {2}(-|\*)/gm, "    -") // fixes sublist indentation
+        .replace(/&/gm, "&amp;")
         .replace(/[‘’]/gm, `'`) // fixes quote character
         .replace(/[“”]/gm, `"`);
-      const html = converter.makeHtml(parsedData)
-        .replace(/<pre><code/g, '<pre><div')
-        .replace(/<\/code><\/pre>/g, '</div></pre>')
-        .replace(/<\/table>/g, '</table><br/>')
-        .replace(/<br>/g, '<br/>')
-        .replace(/<#>/g, '&lt;#&gt;');
+      const html = converter
+        .makeHtml(parsedData)
+        .replace(/<pre><code/g, "<pre><div")
+        .replace(/<\/code><\/pre>/g, "</div></pre>")
+        .replace(/<\/table>/g, "</table><br/>")
+        .replace(/<br>/g, "<br/>")
+        .replace(/<#>/g, "&lt;#&gt;");
       const parsedHtml = parseLinks(pageUrl, html, confluencePages);
 
       const match = data.match(/^#{1,2}(.*)$/m); // Title
@@ -133,23 +136,23 @@ async function publish () {
 
       const body = {
         version,
-        type: 'page',
+        type: "page",
         title,
         space: {
-          key: space || CONFLUENCE_SPACE
+          key: space || CONFLUENCE_SPACE,
         },
         body: {
           storage: {
             value: parsedHtml,
-            representation: 'storage'
-          }
-        }
+            representation: "storage",
+          },
+        },
       };
 
       const options = {
-        method: pageId ? 'put' : 'post',
+        method: pageId ? "put" : "post",
         headers,
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       };
 
       const uri = pageId ? `${baseUrl}/${pageId}` : baseUrl;
@@ -162,20 +165,22 @@ async function publish () {
         failed.push(doc);
         fs.writeFileSync(`./failed-${doc}.html`, parsedHtml);
         console.error(`publish to confluence failed for ${doc}`);
-        console.error({response: await response.json()});
+        console.error({ response: await response.json() });
         continue;
       }
     }
   }
 
-  fs.writeFileSync('./confluence-pages.json', JSON.stringify(confluencePages, null, 2));
+  fs.writeFileSync(
+    "./confluence-pages.json",
+    JSON.stringify(confluencePages, null, 2)
+  );
 
   console.log(`Published ${worked.length} docs to Confluence.`);
   if (failed.length > 0) {
     console.log(`${failed.length} failed:`);
-    console.log(failed.join('\n'));
+    console.log(failed.join("\n"));
   }
 }
 
-publish()
-  .catch(console.log);
+publish().catch(console.log);
