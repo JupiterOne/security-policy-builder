@@ -10,7 +10,7 @@ node_modules/
 !/bin
 !/ci_bin
 !/commands/**
-!/lib/
+!/lib/**
 !/util/
 !.dockerignore
 !.editorconfig
