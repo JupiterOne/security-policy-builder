@@ -15,7 +15,7 @@ const pThrottle = require("p-throttle");
 
 const EUSAGEERROR = 126;
 const MAX_CONCURRENCY = 2;
-const DEFAULT_THROTTLE = 2500;
+const DEFAULT_THROTTLE = 3500;
 
 let shouldUpdateRelationships = false;
 
