@@ -107,7 +107,6 @@ async function validatePSPDependencies() {
   }
   const requiredKeys = [
     "organization",
-    "standards",
     "policies",
     "procedures",
     "references",
