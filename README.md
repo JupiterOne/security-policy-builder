@@ -49,7 +49,7 @@ procedures to your JupiterOne account, so that you and others in your organizati
 can access them online.
 
 ```bash
-./bin/psp publish -a j1accountId -c path/to/your/config.json -t ./templates -u j1userId
+./bin/psp publish -c path/to/your/config.json -t ./templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN
 ```
 
 The `publish` command will prompt you to enter the password for your JupiterOne
