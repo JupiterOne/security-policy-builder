@@ -1,4 +1,4 @@
-import test from "ava";
+const test = require("ava");
 const assets = require("../../lib/assets");
 const fs = require("fs-extra");
 const path = require("path");

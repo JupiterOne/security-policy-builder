@@ -1,4 +1,4 @@
-import test from "ava";
+const test = require("ava");
 
 const assessment = require("../../lib/assessment");
 const path = require("path");

@@ -1,4 +1,4 @@
-import test from "ava";
+const test = require("ava");
 const render = require("../../lib/render");
 const fs = require("fs-extra");
 

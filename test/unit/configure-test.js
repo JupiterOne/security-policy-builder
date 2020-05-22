@@ -1,4 +1,4 @@
-import test from "ava";
+const test = require("ava");
 
 const configure = require("../../lib/configure");
 const questions = require("../../lib/questions/base").list;
