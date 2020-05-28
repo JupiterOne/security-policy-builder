@@ -78,6 +78,12 @@ username/password:
 Published 35 docs to Confluence.
 ```
 
+Or, provide necessary configuration options for non-interactive publishing:
+
+```bash
+./bin/psp publish --confluence --site <subdomain> --space <KEY> --docs <path> -u <username/email> -k <key/password>
+```
+
 The program will save the page ID for each published policy document locally to
 a file in the current directory: `confluence-pages.json`. Make sure this file
 is **retained** because the program will use the page ID for each policy to
