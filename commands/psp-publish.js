@@ -30,8 +30,8 @@ async function main() {
       "optional path to templates directory",
       "templates"
     )
-    .option("-u, --user <email>", "JupiterOne user email")
-    .option("-k, --api-token <api_token>", "JupiterOne API token")
+    .option("-u, --user <email>", "JupiterOne or Confluence user email")
+    .option("-k, --api-token <api_token>", "JupiterOne API token or Confluence user access key")
     .option(
       "-f, --force-update",
       "force update all items instead of only those items modified with a newer timestamp"
@@ -41,10 +41,22 @@ async function main() {
       "do not prompt for confirmation, expect password on stdin"
     )
     .option("--confluence", "publish to a Confluence wiki space")
+    .option("--site <subdomain>", "Confluence site/domain (the vanity subdomain before '.atlassian.net')")
+    .option("--space <spaceKey>", "Space key of the Confluence wiki space")
+    .option("-d, --docs [dir]", "path to docs; used in conjunction with --confluence option", "docs")
     .parse(process.argv);
 
-  if (program.confluence) {
-    await confluence.publish();
+  if (program.confluence && program.docs) {
+    let options;
+    if (program.site && program.space && program.user && program.apiToken) {
+      options = { 
+        domain: program.site, 
+        space: program.space,
+        username: program.user, 
+        password: program.apiToken,
+      }
+    }
+    await confluence.publish(program.docs, options);
     process.exit(0);
   }
 
