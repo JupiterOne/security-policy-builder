@@ -177,7 +177,7 @@ system. Follow the installation instructions here:
 
 [https://pandoc.org/installing.html](https://pandoc.org/installing.html)
 
-NOTE: on OSX systems, you will likely also need to install XeLaTeX from here:
+NOTE: on macOS systems, you will likely also need to install XeLaTeX from here:
 [http://www.texts.io/support/0001/](http://www.texts.io/support/0001/)
 
 #### Example steps for macOS
