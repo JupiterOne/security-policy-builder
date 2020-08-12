@@ -1,18 +1,19 @@
 # InfoSec Policies, Standards and Procedures (PSP) Builder
 
-This provides a CLI tool and library for generating and maintaining an
-organization's full policies, standards, and procedures in support of modern
-security operations and compliance.
+A CLI tool for building and publishing an organization's full policies,
+standards, and procedures in support of modern security operations and
+compliance.
 
-It will default to outputting documentation in Markdown format. This project
-also supports the use of `Mkdocs` to convert Markdown to HTML, e.g.:
-https://security.lifeomic.com/psp/. `pandoc` (not supported) may optionally
-be used to convert from Markdown to PDF format.
+The default output format is Markdown. `Mkdocs` is supported to convert Markdown
+to HTML, e.g.: https://security.lifeomic.com/psp/. `pandoc` (not supported) may
+optionally be used to convert from Markdown to PDF format.
 
-First-time users of the tool can choose one of the execution methods below
-and run `psp build` to be interactively prompted for configuration values.
-This will generate a `config.json` file that may be used to speed-up future
-invocations.
+First-time users of the tool can choose one of the execution methods below and
+run `psp build` to be interactively prompted for configuration values. This will
+generate a `config.json` file that may be used to speed-up future invocations.
+
+JupiterOne users with existing content may begin using the CLI by downloading
+the PSP zip file in the Policies app.
 
 ## TL;DR
 
@@ -49,7 +50,7 @@ procedures to your JupiterOne account, so that you and others in your organizati
 can access them online.
 
 ```bash
-./bin/psp publish -c path/to/your/config.json -t ./templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN
+psp publish -c path/to/your/config.json -t ./templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN
 ```
 
 The `publish` command will prompt you to enter the password for your JupiterOne
@@ -64,7 +65,7 @@ You can also publish the policies to a Confluence wiki space. Simply run the
 `psp publish` command with the `--confluence` option.
 
 ```bash
-./bin/psp publish --confluence
+psp publish --confluence
 ```
 
 You will be prompted to enter your Confluence domain and space key, and
@@ -81,7 +82,7 @@ Published 35 docs to Confluence.
 Or, provide necessary configuration options for non-interactive publishing:
 
 ```bash
-./bin/psp publish --confluence --site <subdomain> --space <KEY> --docs <path> -u <username/email> -k <key/password>
+psp publish --confluence --site <subdomain> --space <KEY> --docs <path> -u <username/email> -k <key/password>
 ```
 
 The program will save the page ID for each published policy document locally to
@@ -192,8 +193,7 @@ Install **pandoc-latex-admonition**, which is a pandoc filter for adding
 admonition:
 
 ```bash
--pip install pandoc-latex-admonition
-+pip3 install pandoc-latex-admonition
+pip install pandoc-latex-admonition
 ```
 
 Download and install **LaTex**, or
@@ -205,10 +205,15 @@ sudo tlmgr install collection-fontsrecommended
 sudo tlmgr install mdframed
 sudo tlmgr install needspace
 sudo tlmgr install ucharcat
-+sudo tlmgr install tcolorbox
-+sudo tlmgr install environ
-+sudo tlmgr install trimspaces
+sudo tlmgr install tcolorbox
+sudo tlmgr install environ
+sudo tlmgr install trimspaces
 ```
+
+Start a new terminal session to ensure `pandoc` runs. Note that some UTF-8
+characters [may not be supported out-of-the-box][1]. The `--pdf-engine=xelatex
+--variable monofont="Monaco"` options help, but other fonts may be required if
+your content needs them.
 
 **Example script for generating individual PDF policy documents:**
 
@@ -217,14 +222,18 @@ sudo tlmgr install ucharcat
 cd ./docs
 mkdir pdf
 for filename in *.md; do
-    pandoc $filename -f markdown -t latex -o ./pdf/$filename.pdf
+  echo $filename
+  pandoc $filename -f markdown -t latex --pdf-engine=xelatex --variable monofont="Monaco" -o ./pdf/$filename.pdf
 done
 ```
 
 **Example script for generating a combined PDF policy document:**
 
+The `intro.md` and `model.md` files are inserted at the beginning of the
+document. You may add or drop these as desired, depending on your content.
+
 ```bash
-pandoc intro.md model.md *.md -f markdown -t latex --pdf-engine=xelatex --toc -o ./pdf/infosec-policies.pdf
+pandoc intro.md model.md *.md -f markdown -t latex --pdf-engine=xelatex --variable monofont="Monaco" --toc -o ./pdf/infosec-policies.pdf
 ```
 
 **Example script for generating Word documents:**
@@ -329,3 +338,5 @@ configurable questions. The `config.json` file contains the following sections:
   - If you choose to exclude a procedure from your final policy documentation,
     you may set the `adopted` flag to `false`. The policy builder with skip
     those when compiling the policies.
+
+[1]: https://stackoverflow.com/questions/18178084/pandoc-and-foreign-characters
