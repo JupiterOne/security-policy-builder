@@ -1,4 +1,4 @@
-import test from "ava";
+const test = require("ava");
 
 const colors = require("../../lib/questions/helpers/colors");
 

@@ -1,4 +1,4 @@
-import test from "ava";
+const test = require("ava");
 
 const path = require("path");
 const execFile = require("child_process").execFile;
