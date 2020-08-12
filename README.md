@@ -186,7 +186,7 @@ NOTE: on macOS systems, you will likely also need to install XeLaTeX from here:
 Install **Pandoc**:
 
 ```bash
-sudo brew install pandoc
+brew install pandoc
 ```
 
 Install **pandoc-latex-admonition**, which is a pandoc filter for adding
