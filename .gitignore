@@ -1,29 +1,10 @@
-# ignore everything
-*
+dist/
+*.log
+coverage/
 node_modules/
-# but descend into directories
-!*/*
-# recursively allow files under subtree
-!/test/**
-!/static/**
-!/assessments/mkdocs.yml
-!/bin
-!/ci_bin
-!/commands/**
-!/lib/**
-!/util/
-!.dockerignore
-!.editorconfig
-!.eslint*
-!.gitignore
-!.nvmrc
-!.travis.yml
-!docker-mkdocs.yml
-!Dockerfile
-!LICENSE
-!Makefile
-!package.json
-!README.md
-!relocatable_venv
-!yarn.lock
+work/
+package-lock.json
+data/
+docs/
 
+/publish-j1dev.sh

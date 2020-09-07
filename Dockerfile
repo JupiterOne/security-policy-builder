@@ -1,4 +1,4 @@
-FROM node:10 as pspbuilder
+FROM node:12.14.0-alpine
 WORKDIR /opt
 RUN apt-get update && apt-get install --assume-yes \
   aspell \

@@ -44,10 +44,11 @@ For more detailed builder instructions, see the README [here][builder].
 
 ### Publishing policies and procedures to JupiterOne
 
-If you have an account on the [JupiterOne security platform](https://jupiterone.io),
-you can run the following command to publish the contents of your policies and
-procedures to your JupiterOne account, so that you and others in your organization
-can access them online.
+If you have an account on the
+[JupiterOne security platform](https://jupiterone.io), you can run the following
+command to publish the contents of your policies and procedures to your
+JupiterOne account, so that you and others in your organization can access them
+online.
 
 ```bash
 psp publish -c path/to/your/config.json -t ./templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN
@@ -72,9 +73,9 @@ You will be prompted to enter your Confluence domain and space key, and
 username/password:
 
 ```bash
-? Confluence domain (the vanity subdomain before '.atlassian.net'): 
-? Confluence space key: 
-? Confluence username: 
+? Confluence domain (the vanity subdomain before '.atlassian.net'):
+? Confluence space key:
+? Confluence username:
 ? Confluence password: [hidden]
 Published 35 docs to Confluence.
 ```
@@ -86,9 +87,9 @@ psp publish --confluence --site <subdomain> --space <KEY> --docs <path> -u <user
 ```
 
 The program will save the page ID for each published policy document locally to
-a file in the current directory: `confluence-pages.json`. Make sure this file
-is **retained** because the program will use the page ID for each policy to
-update the Confluence page the next time it is run.
+a file in the current directory: `confluence-pages.json`. Make sure this file is
+**retained** because the program will use the page ID for each policy to update
+the Confluence page the next time it is run.
 
 _We recommend creating a dedicated wiki space for these security policies._
 
@@ -100,7 +101,8 @@ If you'd like to keep the dependencies self-contained, you can build and use a
 Docker image via:
 
 1. `docker build -t pspbuilder .`
-1. `cd` into the directory containing your local templates dir (if any) and config file
+1. `cd` into the directory containing your local templates dir (if any) and
+   config file
 1. `docker run -it -v$(pwd):/mnt --rm pspbuilder psp build -c /mnt/config.json -t /mnt/templates -o /mnt/docs -p /mnt/partials`
 1. `docker run -it -v$(pwd):/mnt --rm pspbuilder mkdocs build -f /mnt/docker-mkdocs.yml`
 
@@ -121,7 +123,8 @@ them locally, do:
 If you received this project as a zipfile intended for local installation,
 you'll need to install the latest Node v9 executable, via:
 
-1. Install NVM with: `curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash`
+1. Install NVM with:
+   `curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash`
 1. Install Node with `nvm install $(cat .nvmrc)`
 
 #### From source
@@ -211,9 +214,9 @@ sudo tlmgr install trimspaces
 ```
 
 Start a new terminal session to ensure `pandoc` runs. Note that some UTF-8
-characters [may not be supported out-of-the-box][1]. The `--pdf-engine=xelatex
---variable monofont="Monaco"` options help, but other fonts may be required if
-your content needs them.
+characters [may not be supported out-of-the-box][1]. The
+`--pdf-engine=xelatex --variable monofont="Monaco"` options help, but other
+fonts may be required if your content needs them.
 
 **Example script for generating individual PDF policy documents:**
 

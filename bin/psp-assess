@@ -1,2 +1,7 @@
 #!/usr/bin/env node
-require('../commands/psp-assess.js')
+require('./devInit');
+const {run} = require('../src/commands/psp-assess')
+
+run().catch((err) => {
+  console.error('Unexpected error performing assessment. Error: ' + (err.stack || err.toString()));
+});
