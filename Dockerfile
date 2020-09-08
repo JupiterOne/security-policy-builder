@@ -1,4 +1,4 @@
-FROM node:12.14.0-alpine
+FROM node:12.14.0
 WORKDIR /opt
 RUN apt-get update && apt-get install --assume-yes \
   aspell \
