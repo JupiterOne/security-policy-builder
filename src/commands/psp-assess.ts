@@ -57,7 +57,7 @@ export async function run() {
     .usage('--standard <compliance_standard> --config <file> [options]')
     .option(
       '-s, --standard <compliance_standard>',
-      'compliance standard to assess against, e.g. hipaa'
+      'compliance standard to assess against. currently supported: hipaa'
     )
     .option('-c, --config <file>', 'JSON config file')
     .option('-o, --output [dir]', 'optional output directory', 'assessments')
