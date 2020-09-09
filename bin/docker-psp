@@ -1,4 +1,3 @@
 #!/bin/bash
-export PROJECT_DIR="/opt"
-cd $PROJECT_DIR || exit 2
-node "${PROJECT_DIR}/commands/psp.js" "$@"
+cd /opt || exit 2
+./bin/psp "$@"
