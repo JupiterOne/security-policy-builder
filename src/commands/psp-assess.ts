@@ -221,6 +221,7 @@ async function gatherInputs(config: PolicyBuilderConfig) {
 
   return {
     ...org,
+    ...answers,
     date: new Date(),
     policyTOC: assessment.generatePolicyTOC(config),
     isHIPAACoveredEntityText: org.isHIPAACoveredEntity ? 'is' : 'is not',
