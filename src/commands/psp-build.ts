@@ -26,7 +26,14 @@ export async function run() {
   program
     .version(packageJson.version, '-v, --version')
     .usage('[options]')
-    .option('-t, --templates [dir]', 'optional path to template files.')
+    .option(
+      '-t, --templates [dir]',
+      'optional path to existing template files.'
+    )
+    .option(
+      '-s, --savetemplates [dir]',
+      'optional path to save template files to upon first run.'
+    )
     .option(
       '-n, --noninteractive',
       'exit with error if any configuration data is missing (do not prompt)'
@@ -118,7 +125,9 @@ function showStatus(items: { ok: string[]; errors: string[]; type: string }) {
 }
 
 async function exposeTemplates() {
-  const targetDir = path.join(process.cwd(), 'templates');
+  const targetDir = program.savetemplates
+    ? program.savetemplates
+    : path.join(process.cwd(), 'templates');
   if (!(await fs.pathExists(targetDir))) {
     await fs.copy(program.templates, targetDir);
     console.log(`copied templates into ${targetDir} for future modification.`);

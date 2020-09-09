@@ -1,0 +1,5 @@
+assessments/*
+coverage/*
+docs/*
+site/*
+node_modules/*
