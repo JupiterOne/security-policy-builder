@@ -46,7 +46,7 @@ This will cache the docker image locally on your machine.
 
 ## Building your first set of policies
 
-The first time run the `psp build` command, you will be prompted for several
+The first time you run the `psp build` command, you will be prompted for several
 inputs, such as company name, to be included in your policy text. Save this to a
 file, say `config.json`, when prompted. This will use the default
 [policy templates](https://github.com/JupiterOne/security-policy-templates)
@@ -54,8 +54,8 @@ maintained by JupiterOne to render a basic, but fairly complete set of
 information security policies and procedures.
 
 `cd` into a directory where you would like your PSP files to reside (we
-recommend keeping the templates directory--see below--under version control!)
-and perform one of the following commands:
+recommend keeping the generated `templates` directory--see below--under version
+control!) and perform one of the following commands:
 
 ### Building from NPM script
 
@@ -83,16 +83,17 @@ information architecture for your documents (how the policies and procedures
 fragments should be stitched together). We recommended all policies available in
 the default `config.json` to be adopted for your security program. The
 `config.json` file includes the procedures/controls you choose to adopt, which
-will be included in the final rendered policy docs by the `pspbuilder`.
+will be included in the final rendered policy docs by the tool.
 
 The output of a successful first run will be the creation of three directories:
 
-`templates` - raw markdown templates that represent the source of truth for your
-policies and procedures `partials` - partially rendered markdown fragments used
-to assemble `docs`. This dir is intermediate output sometimes useful for
-debugging purposes, and may largely be ignored `docs` - fully rendered PSP
-documents assembled from `partials` fragments. These files are the final
-Markdown produced by the tool.
+- `templates` - raw markdown templates that represent the source of truth for
+  your policies and procedures.
+- `partials` - partially rendered markdown fragments used to assemble the
+  `docs`. This dir is intermediate output sometimes useful for debugging
+  purposes, and may largely be ignored.
+- `docs` - The final Markdown produced by the tool, assembled from `partials`
+  fragments.
 
 You will invariably want to edit these PSPs to reflect the specifics of your
 organization's information security program. See "PSP Best Practices" below for
@@ -178,8 +179,8 @@ _We recommend creating a dedicated wiki space for these security policies._
 
 ## PSP Best Practices
 
-The PSPs supported by the pspbuilder tool are meant to be automatically
-generated from source. We recommend the following practices:
+The PSPs supported by the tool are meant to be automatically generated from
+source. We recommend the following practices:
 
 ### Versioning
 
