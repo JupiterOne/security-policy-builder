@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 require('./devInit');
-const {run} = require('~/src/commands/psp-publish')
+const {run} = require('../src/commands/psp-publish')
 
 run().catch((err) => {
   console.error('Unexpected error publishing. ' + (err.stack || err.toString()));
