@@ -1,5 +1,5 @@
-assessments/*
-coverage/*
-docs/*
-site/*
-node_modules/*
+assessments
+coverage
+docs
+site
+node_modules

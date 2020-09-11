@@ -216,7 +216,9 @@ docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder psp build -c /mnt/confi
 docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder psp publish -c /mnt/config.json -t /mnt/templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN --noninteractive
 
 # generate static HTML in 'site' directory
-docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder mkdocs build -f /mnt/docs/mkdocs.yml
+# mkdocs command expects the YAML file to be at the root of the project
+cp docs/mkdocs.yml .
+docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder mkdocs build -f /mnt/mkdocs.yml
 
 # copy to static site host (here, AWS S3 bucket)
 cd site
