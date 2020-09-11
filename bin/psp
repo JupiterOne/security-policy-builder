@@ -1,2 +1,3 @@
 #!/usr/bin/env node
-require('../commands/psp.js')
+require('./devInit');
+require('../src/commands/psp')

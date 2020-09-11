@@ -1,2 +1,8 @@
 #!/usr/bin/env node
-require('../commands/psp-build.js')
+require('./devInit');
+const {run} = require('../src/commands/psp-build')
+
+run().catch((err) => {
+  console.error('Unexpected error building policies. ' + (err.stack || err.toString()));
+  process.exitCode = 1;
+});

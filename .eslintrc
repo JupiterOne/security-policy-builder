@@ -1,17 +1,10 @@
 {
-  "parserOptions": {
-    "ecmaVersion": 2017
-  },
-  "parser": "babel-eslint",
-  "env": {
-    "node": true,
-    "es6": true
-  },
+  "root": true,
   "extends": [
-    "eslint:recommended"
+    "./node_modules/@jupiterone/typescript-tools/config/eslint-node.json"
   ],
-  "rules": {
-    "require-atomic-updates": "off",
-    "prefer-const": ["error", { "destructuring": "all" }]
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "tsconfigRootDir": "."
   }
 }

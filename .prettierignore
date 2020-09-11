@@ -1,0 +1,5 @@
+coverage/
+work/
+dist/
+.terraform/
+data/

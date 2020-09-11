@@ -1,12 +1,11 @@
 # InfoSec Policies, Standards and Procedures (PSP) Builder
 
 A CLI tool for building and publishing an organization's full policies,
-standards, and procedures in support of modern security operations and
+standards, and procedures (PSPs) in support of modern security operations and
 compliance.
 
-The default output format is Markdown. `Mkdocs` is supported to convert Markdown
-to HTML, e.g.: https://security.lifeomic.com/psp/. `pandoc` (not supported) may
-optionally be used to convert from Markdown to PDF format.
+The output format is Markdown. For instructions on converting markdown to other
+formats like HTML and PDF, see notes below.
 
 First-time users of the tool can choose one of the execution methods below and
 run `psp build` to be interactively prompted for configuration values. This will
@@ -15,47 +14,133 @@ generate a `config.json` file that may be used to speed-up future invocations.
 JupiterOne users with existing content may begin using the CLI by downloading
 the PSP zip file in the Policies app.
 
-## TL;DR
+## Installing the policybuilder
 
-Run the following command to install the policy builder and build the policies.
-You will be prompted for a few inputs, such as company name, to be included in
-your policy text.
+### Using NPM
+
+Run the following command to install the policy builder locally using NPM.
 
 ```bash
 npm install -g @jupiterone/security-policy-builder
+```
 
+If you do not have Node and/or NPM installed locally, you may do so via:
+
+#### Installing NVM and Node
+
+1. Install NVM with:
+   `curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash`
+1. Install Node with `nvm install stable`
+
+### Using Docker
+
+If you are comfortable using Docker, you can also use our
+[Dockerhub pspbuilder image](https://hub.docker.com/r/jupiterone/pspbuilder), by
+issuing the command:
+
+```bash
+docker pull jupiterone/pspbuilder
+```
+
+This will cache the docker image locally on your machine.
+
+## Building your first set of policies
+
+The first time you run the `psp build` command, you will be prompted for several
+inputs, such as company name, to be included in your policy text. Save this to a
+file, say `config.json`, when prompted. This will use the default
+[policy templates](https://github.com/JupiterOne/security-policy-templates)
+maintained by JupiterOne to render a basic, but fairly complete set of
+information security policies and procedures.
+
+`cd` into a directory where you would like your PSP files to reside (we
+recommend keeping the generated `templates` directory--see below--under version
+control!) and perform one of the following commands:
+
+### Building from NPM script
+
+If you installed from NPM above, issue:
+
+```bash
 psp build
 ```
 
-You will be prompted to save the config to a file, which you can reference the
-next time you'd like to rebuild the policies and procedures:
+### Building from docker image
+
+If you're using the provided docker image, issue:
 
 ```bash
-psp build -t ./templates -c path/to/your/config.json
+docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder psp build -o /mnt/docs -p /mnt/partials -s /mnt/templates
 ```
 
-The result files are put in `./docs` (Markdown) and `./site` (HTML).
+### Output of `psp build`
+
+Remember to save your config to a file, which you can reference the next time
+you'd like to rebuild the policies and procedures with the `-c` or `--config`
+option flag. This JSON document stores your `organization` template variables
+referenced from documents in the `templates` folder, and also stores the
+information architecture for your documents (how the policies and procedures
+fragments should be stitched together). We recommended all policies available in
+the default `config.json` to be adopted for your security program. The
+`config.json` file includes the procedures/controls you choose to adopt, which
+will be included in the final rendered policy docs by the tool.
+
+The output of a successful first run will be the creation of three directories:
+
+- `templates` - raw markdown templates that represent the source of truth for
+  your policies and procedures.
+- `partials` - partially rendered markdown fragments used to assemble the
+  `docs`. This dir is intermediate output sometimes useful for debugging
+  purposes, and may largely be ignored.
+- `docs` - The final Markdown produced by the tool, assembled from `partials`
+  fragments.
+
+You will invariably want to edit these PSPs to reflect the specifics of your
+organization's information security program. See "PSP Best Practices" below for
+additional details on versioning and deployment.
 
 **IMPORTANT:** To edit the policies and procedures, use the template files in
 `./templates` and re-run the `psp build` command. Do _not_ edit the `./docs` and
 `./partials` files directly as they will be overwritten on the next build.
 
-For more detailed builder instructions, see the README [here][builder].
+### Building from existing/edited templates
+
+Once you've edited your template files, you're ready to build again with:
+
+```bash
+psp build -t ./templates -c ./config.json
+
+or
+
+docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder psp build -t /mnt/templates -o /mnt/docs -p /mnt/partials
+```
+
+## Publishing
+
+The policybuilder tools supports publishing to JupiterOne and Confluence, via
+the `publish` subcommand.
 
 ### Publishing policies and procedures to JupiterOne
 
-If you have an account on the [JupiterOne security platform](https://jupiterone.io),
-you can run the following command to publish the contents of your policies and
-procedures to your JupiterOne account, so that you and others in your organization
-can access them online.
+If you have an account on the
+[JupiterOne security platform](https://jupiterone.io), you can run the following
+command to publish the contents of your policies and procedures to your
+JupiterOne account, so that you and others in your organization can access them
+online.
 
 ```bash
-psp publish -c path/to/your/config.json -t ./templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN
+psp publish -c ./config.json -t ./templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN
+
+or
+
+docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder psp publish -c /mnt/config.json -t /mnt/templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN
 ```
 
-The `publish` command will prompt you to enter the password for your JupiterOne
-user account. You can also supply the API Token instead of a password with the
-`-k | --api-token` option.
+Alternatively, you may use username/password auth by passing the
+`-u $J1_USERNAME` flag instead of `-k`. This will interactively prompt you for
+your JupiterOne password, and should only be used when manually publishing to J1
+when no API token has been created. This will fail if specified with the `-n` or
+`--noninteractive` flags, so we recommend the use of API tokens.
 
 Your JupiterOne user must have administrator privilege to publish the contents.
 
@@ -72,9 +157,9 @@ You will be prompted to enter your Confluence domain and space key, and
 username/password:
 
 ```bash
-? Confluence domain (the vanity subdomain before '.atlassian.net'): 
-? Confluence space key: 
-? Confluence username: 
+? Confluence domain (the vanity subdomain before '.atlassian.net'):
+? Confluence space key:
+? Confluence username:
 ? Confluence password: [hidden]
 Published 35 docs to Confluence.
 ```
@@ -86,218 +171,65 @@ psp publish --confluence --site <subdomain> --space <KEY> --docs <path> -u <user
 ```
 
 The program will save the page ID for each published policy document locally to
-a file in the current directory: `confluence-pages.json`. Make sure this file
-is **retained** because the program will use the page ID for each policy to
-update the Confluence page the next time it is run.
+a file in the current directory: `confluence-pages.json`. Make sure this file is
+**retained** because the program will use the page ID for each policy to update
+the Confluence page the next time it is run.
 
 _We recommend creating a dedicated wiki space for these security policies._
 
-## Advanced steps to build and deploy policies
+## PSP Best Practices
 
-### With docker image
+The PSPs supported by the tool are meant to be automatically generated from
+source. We recommend the following practices:
 
-If you'd like to keep the dependencies self-contained, you can build and use a
-Docker image via:
+### Versioning
 
-1. `docker build -t pspbuilder .`
-1. `cd` into the directory containing your local templates dir (if any) and config file
-1. `docker run -it -v$(pwd):/mnt --rm pspbuilder psp build -c /mnt/config.json -t /mnt/templates -o /mnt/docs -p /mnt/partials`
-1. `docker run -it -v$(pwd):/mnt --rm pspbuilder mkdocs build -f /mnt/docker-mkdocs.yml`
+We highly recommend you practice policy-as-code and version your `templates` dir
+and `config.json` file. If you use `git` for version control, we recommend
+putting the following in your project's `.gitignore`:
 
-This will generate a `docs` directory containing Markdown files, and a `site`
-directory containing HTML files which may be statically served.
-
-These static files may be uploaded to a webserver, served from S3, etc. To view
-them locally, do:
-
-1. `cd site`
-1. `python3 -m http.server 8000`
-1. `open http://localhost:8000`
-
-### Local CLI prerequisites and first steps
-
-#### From zipfile
-
-If you received this project as a zipfile intended for local installation,
-you'll need to install the latest Node v9 executable, via:
-
-1. Install NVM with: `curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash`
-1. Install Node with `nvm install $(cat .nvmrc)`
-
-#### From source
-
-If you have cloned this repository, you'll need to:
-
-1. Ensure you have the [latest Node v9](https://nodejs.org/en/download/).
-1. Execute `yarn install` to install the Node package dependencies.
-1. Execute `yarn mkdocs` to install mkdocs.
-
-_★ Note: On a fresh macOS machine run the following commands to set up MkDocs._
-
-```bash
-pip install --upgrade pip
-pip install virtualenv
-pip install mkdocs mkdocs-material
+```
+docs
+partials
 ```
 
-See http://www.mkdocs.org for more info.
+Doing this makes it obvious what is to be edited in order to update your PSPs,
+and prevents confusion.
 
-#### Locally building the policies
+If your versioning system supports it, we recommend limiting merge authority to
+authorized security staff only.
 
-PSP-Builder is used to build markdown source files from templates, using
-configurable values.
+### CI/CD
 
-To build all markdown files, do:
-
-`./bin/psp build`
-
-If you have previously saved a configuration JSON file, and wish to rebuild the
-PSP docs against this configuration, do:
-
-`./bin/psp build -c path/to/your/config.json`
-
-#### Locally serving the static site
-
-MkDocs is used to build a static site to serve the documentation pages. To view
-the site locally, run `./bin/mkdocs serve -f docs/mkdocs.yml` in the project
-root directory.
-
-For further instructions, see [MkDocs website](http://www.mkdocs.org/).
-
-Additionally, it uses `mkdocs-material` theme. Instructions can be found
-[here](https://squidfunk.github.io/mkdocs-material/getting-started/).
-
-_★ Note: Four spaces are used instead of two in nested lists to get around a
-rendering issue in MkDocs._
-
-### Generating PDF and Word documents
-
-`Pandoc` can be used to automatically convert the markdown files into PDF or
-Word documents. This requires `pandoc` to be installed separately on your local
-system. Follow the installation instructions here:
-
-[https://pandoc.org/installing.html](https://pandoc.org/installing.html)
-
-NOTE: on macOS systems, you will likely also need to install XeLaTeX from here:
-[http://www.texts.io/support/0001/](http://www.texts.io/support/0001/)
-
-#### Example steps for macOS
-
-Install **Pandoc**:
-
-```bash
-brew install pandoc
-```
-
-Install **pandoc-latex-admonition**, which is a pandoc filter for adding
-admonition:
-
-```bash
-pip install pandoc-latex-admonition
-```
-
-Download and install **LaTex**, or
-[MacTeX](http://www.tug.org/mactex/morepackages.html). The smaller distribution,
-BasicTeX is sufficient, but additional packages are required:
-
-```bash
-sudo tlmgr install collection-fontsrecommended
-sudo tlmgr install mdframed
-sudo tlmgr install needspace
-sudo tlmgr install ucharcat
-sudo tlmgr install tcolorbox
-sudo tlmgr install environ
-sudo tlmgr install trimspaces
-```
-
-Start a new terminal session to ensure `pandoc` runs. Note that some UTF-8
-characters [may not be supported out-of-the-box][1]. The `--pdf-engine=xelatex
---variable monofont="Monaco"` options help, but other fonts may be required if
-your content needs them.
-
-**Example script for generating individual PDF policy documents:**
+Building and publishing the PSPs upon authorized merge to master branch is
+supported via the `-n` or `--noninteractive` flags. Do something like:
 
 ```bash
 #!/bin/bash
-cd ./docs
-mkdir pdf
-for filename in *.md; do
-  echo $filename
-  pandoc $filename -f markdown -t latex --pdf-engine=xelatex --variable monofont="Monaco" -o ./pdf/$filename.pdf
-done
+set -euo pipefail
+cd to/cloned/repo
+
+# build documentation
+docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder psp build -c /mnt/config.json -o /mnt/docs -t /mnt/templates --noninteractive
+
+# publish templates to JupiterOne graph
+docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder psp publish -c /mnt/config.json -t /mnt/templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN --noninteractive
+
+# generate static HTML in 'site' directory
+# mkdocs command expects the YAML file to be at the root of the project
+cp docs/mkdocs.yml .
+docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder mkdocs build -f /mnt/mkdocs.yml
+
+# copy to static site host (here, AWS S3 bucket)
+cd site
+aws s3 cp --recursive . s3://mybucket/location
 ```
 
-**Example script for generating a combined PDF policy document:**
+## Advanced Usage
 
-The `intro.md` and `model.md` files are inserted at the beginning of the
-document. You may add or drop these as desired, depending on your content.
+### Advanced JSON configuration
 
-```bash
-pandoc intro.md model.md *.md -f markdown -t latex --pdf-engine=xelatex --variable monofont="Monaco" --toc -o ./pdf/infosec-policies.pdf
-```
-
-**Example script for generating Word documents:**
-
-```bash
-mkdir docx
-pandoc intro.md model.md *.md -f markdown -t docx --toc -o ./docx/infosec-policies.docx
-```
-
-### Generating Self Assessment Reports
-
-The current version of the policy builder supports generating a lightweight
-HIPAA self assessment report, based on a few key questions and the adoption of
-policies and procedures.
-
-```bash
-./bin/psp assess --standard hipaa --config <location_of_your_json_config_file> [options]
-```
-
-The above command generates a HIPAA self assessment report in the
-`./assessments` directory. The report contains mapping of your adopted
-policies/procedures to each specific HIPAA regulation requirement. It also
-contains placeholders, where applicable, for you to provide additional details.
-Gaps identified will be called out in the command line output as well as in the
-report itself.
-
-## Contents
-
-Each policy and procedure is included as its own markdown file. We recommended
-all policies to be adopted for your security program. The `config.json` file
-includes the procedures/controls you choose to adopt, which will be included in
-the final policy docs by the `psp-builder`.
-
-### Structure
-
-`./templates/`
-
-- This directory contains the modular templates for policies and procedures
-- It is generated upon first run of the policy builder (`./bin/psp-builder`)
-- If you need to fine tune your policy and procedures, edit the individual
-  markdown files inside this directory to preserve changes for subsequent runs.
-
-`./partials/`
-
-- This directory contains the modular policy and procedure markdown files with
-  your organizational details incorporated.
-- The partials directory will be generated after you run the `psp-builder` for
-  the first time.
-
-`./docs/`
-
-- This directory contains the policy documents with the applicable/adopted
-  procedures merged in.
-
-`./site/`
-
-- This is the default location where `mkdocs` generates the static HTML pages
-  from you policy docs.
-- You can then publish the site to your desired target, such as an S3 bucket or
-  an internal website.
-
-## Advanced configuration
-
-You may also edit your `config.json` file directly to provide input to the
+You may edit your `config.json` file directly to provide input to the
 configurable questions. The `config.json` file contains the following sections:
 
 `organization`
@@ -339,4 +271,153 @@ configurable questions. The `config.json` file contains the following sections:
     you may set the `adopted` flag to `false`. The policy builder with skip
     those when compiling the policies.
 
-[1]: https://stackoverflow.com/questions/18178084/pandoc-and-foreign-characters
+### Build Local Docker Image
+
+If you'd prefer not to use the image provided by DockerHub, you may build your
+own docker image by cloning this repository, and running:
+
+```
+docker build -t pspbuilder .
+```
+
+### Preview Mkdocs Output Locally
+
+The static HTML files generated by mkdocs (see "CI/CD" above for example) may be
+viewed locally by doing:
+
+1. `cd site`
+1. `python3 -m http.server 8000`
+1. `open http://localhost:8000`
+
+### Install Mkdocs Locally
+
+Note: local mkdocs usage is not supported.
+
+```bash
+pip install --upgrade pip
+pip install mkdocs mkdocs-material
+```
+
+See http://www.mkdocs.org for more info. Additionally, mkdocs is configured to
+use the `mkdocs-material` theme. Instructions
+[can be found here](https://squidfunk.github.io/mkdocs-material/getting-started/).
+
+### Generating PDF and Word Documents
+
+`Pandoc` can be used to automatically convert the markdown files into PDF or
+Word documents.
+
+#### Pandoc Conversion Using Docker Image
+
+The supported `jupiterone/pspbuilder` docker image has the necessary pandoc
+dependencies installed. You may issue commands like:
+
+```bash
+docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder pandoc /mnt/docs/filename.md -f markdown -t latex --pdf-engine=xelatex --variable monofont="Monaco" -o /mnt/pdf/filename.pdf
+```
+
+to convert a single markdown file into a PDF.
+
+#### Local Pandoc Installation Steps for MacOS
+
+NOTE: Local pandoc usage is not supported.
+
+To install and configure `pandoc` locally on your system, follow the
+installation instructions here:
+[pandoc.org/installing.html](https://pandoc.org/installing.html)
+
+or issue the following commands:
+
+Install **Pandoc**:
+
+```bash
+brew install pandoc
+```
+
+Install **pandoc-latex-admonition**, which is a pandoc filter for adding
+admonition:
+
+```bash
+pip install pandoc-latex-admonition
+```
+
+Download and install **LaTex**, or
+[MacTeX](http://www.tug.org/mactex/morepackages.html). The smaller distribution,
+BasicTeX is sufficient, but additional packages are required:
+
+```bash
+sudo tlmgr install collection-fontsrecommended
+sudo tlmgr install mdframed
+sudo tlmgr install needspace
+sudo tlmgr install ucharcat
+sudo tlmgr install tcolorbox
+sudo tlmgr install environ
+sudo tlmgr install trimspaces
+```
+
+NOTE: on macOS systems, you will likely also need to install XeLaTeX from here:
+[http://www.texts.io/support/0001/](http://www.texts.io/support/0001/)
+
+Start a new terminal session to ensure `pandoc` runs. Note that some UTF-8
+characters
+[may not be supported out-of-the-box](https://stackoverflow.com/questions/18178084/pandoc-and-foreign-characters).
+The `--pdf-engine=xelatex --variable monofont="Monaco"` options help, but other
+fonts may be required if your content needs them.
+
+**Example script for generating individual PDF policy documents:**
+
+```bash
+#!/bin/bash
+cd ./docs
+mkdir pdf
+for filename in *.md; do
+  echo $filename
+  pandoc $filename -f markdown -t latex --pdf-engine=xelatex --variable monofont="Monaco" -o ./pdf/$filename.pdf
+done
+```
+
+**Example script for generating a combined PDF policy document, using Docker:**
+
+Create a small bash script, called `pdf.sh`:
+
+```bash
+#!/bin/bash
+cd /mnt
+mkdir pdf
+cd /mnt/docs
+pandoc *.md -f markdown -t latex --latex-engine=xelatex --variable monofont="inconsolata" --toc -o /mnt/pdf/infosec-policies.pdf
+```
+
+Then, issue:
+
+```bash
+docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder /mnt/pdf.sh
+```
+
+This should stitch together all of your markdown files (in alphabetical order
+returned by the bash glob, `*`). You could replace this with individual ordering
+of file arguments if you wanted more control of the sequencing.
+
+**Example script for generating Word documents:**
+
+```bash
+mkdir docx
+pandoc model.md *.md -f markdown -t docx --toc -o ./docx/infosec-policies.docx
+```
+
+### Generating Self Assessment Reports
+
+The current version of the policy builder supports generating a lightweight
+HIPAA self assessment report, based on a few key questions and the adoption of
+policies and procedures.
+
+```bash
+./bin/psp assess --standard hipaa --config <location_of_your_json_config_file> [options]
+```
+
+The above command generates a HIPAA self assessment report in the
+`./assessments` directory. The report contains mapping of your adopted
+policies/procedures to each specific HIPAA regulation requirement. It also
+contains placeholders, where applicable, for you to provide additional details.
+Gaps identified will be called out in the command line output as well as in the
+report itself.
