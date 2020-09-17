@@ -1,7 +1,7 @@
-import program from 'commander';
+import commander from 'commander';
 import packageJson from '~/package.json';
 
-program
+commander
   .version(packageJson.version, '-V, --version')
   .command('build', 'build PSP markdown documentation from templates')
   .command('assess', 'generate compliance self-assessment markdown report')

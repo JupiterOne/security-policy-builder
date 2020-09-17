@@ -1,5 +1,5 @@
 import * as configure from '~/src/configure';
-import program from 'commander';
+import commander from 'commander';
 import * as assessment from '~/src/assessment';
 import chalk from 'chalk';
 import * as error from '~/src/error';
@@ -15,11 +15,21 @@ import {
 import { Entity } from '~/src/j1/types';
 import { DEFAULT_TEMPLATES } from '~/src/constants';
 import packageJson from '~/package.json';
-import { createJupiterOneClient } from '~/src/j1';
+import { createJupiterOneClient, JupiterOneEnvironment } from '~/src/j1';
 
 const EUSAGEERROR = 126;
 
-async function getRisksFromRegistry(): Promise<Entity[]> {
+type ProgramInput = {
+  version?: string;
+  standard?: string;
+  config?: string;
+  output?: string;
+  templates?: string;
+  includeRisks?: string;
+  account?: string;
+  apiToken?: string;
+};
+async function getRisksFromRegistry(program: ProgramInput): Promise<Entity[]> {
   if (!program.account) {
     throw error.fatal('Missing -a, --account <name> input!', EUSAGEERROR);
   }
@@ -34,7 +44,7 @@ async function getRisksFromRegistry(): Promise<Entity[]> {
   const j1Client = createJupiterOneClient({
     accountId: program.account,
     apiKey: program.apiToken,
-    dev: process.env.J1_DEV_ENABLED === 'true',
+    targetEnvironment: process.env.J1_TARGET_ENV as JupiterOneEnvironment,
   });
   return j1Client.queryForEntityList(
     'find Risk with _beginOn > date.now - 1year'
@@ -52,7 +62,7 @@ export async function run() {
     }
   }
 
-  program
+  const program = commander
     .version(packageJson.version, '-v, --version')
     .usage('--standard <compliance_standard> --config <file> [options]')
     .option(
@@ -68,10 +78,11 @@ export async function run() {
     )
     .option('-a, --account <name>', 'JupiterOne account id')
     .option('-k, --api-token <api_token>', 'JupiterOne API token')
-    .parse(process.argv);
+    .parse(process.argv)
+    .opts() as ProgramInput;
 
   if (!program.standard || !program.config) {
-    program.outputHelp();
+    commander.outputHelp();
     process.exit(2);
   }
 
@@ -90,7 +101,7 @@ export async function run() {
 
   const paths: PolicyBuilderPaths = {
     templates: program.templates,
-    output: program.output,
+    output: program.output!,
     partials: 'partials',
   };
 
@@ -110,13 +121,13 @@ export async function run() {
   }
   let riskList;
   if (program.includeRisks) {
-    const riskEntities = await getRisksFromRegistry();
+    const riskEntities = await getRisksFromRegistry(program);
     riskList = assessment.generateRiskList(riskEntities);
   } else {
     riskList = 'Detailed risk items omitted.';
   }
 
-  const inputs = await gatherInputs(config);
+  const inputs = await gatherInputs(program, config);
   const standard = program.standard.toLowerCase();
 
   // tabulate gaps from input prompts
@@ -192,7 +203,10 @@ const PEN_TEST_QUESTIONS: PenTestQuestionName[] = [
   'nextPenTestDate',
 ];
 
-async function gatherInputs(config: PolicyBuilderConfig) {
+async function gatherInputs(
+  program: ProgramInput,
+  config: PolicyBuilderConfig
+) {
   const org = config.organization;
   if (!assessment.validateOrgValues(org)) {
     error.fatal(
@@ -201,7 +215,7 @@ async function gatherInputs(config: PolicyBuilderConfig) {
     );
   }
 
-  const standardName = program.standard as string;
+  const standardName = program.standard!;
   const answers = (await configure.safeInquirerPrompt(
     assessment.questions(standardName)
   )) as AssessmentAnswers;

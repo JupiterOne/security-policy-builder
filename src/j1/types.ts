@@ -6,9 +6,9 @@ export type EntityPropertyValue =
   | undefined
   | null;
 
-export type EntityProperties = Record<string, EntityPropertyValue>;
+export type EntityAdditionalProperties = Record<string, EntityPropertyValue>;
 
-export type Entity = EntityProperties & {
+export type Entity = EntityAdditionalProperties & {
   _id: string;
   _type: string;
   _class?: string | string[];
@@ -22,9 +22,12 @@ export type RelationshipPropertyValue =
   | undefined
   | null;
 
-export type RelationshipProperties = Record<string, RelationshipPropertyValue>;
+export type RelationshipAdditionalProperties = Record<
+  string,
+  RelationshipPropertyValue
+>;
 
-export type Relationship = RelationshipProperties & {
+export type Relationship = RelationshipAdditionalProperties & {
   _id: string;
   _type: string;
   _class?: string;

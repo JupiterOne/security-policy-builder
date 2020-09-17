@@ -1,12 +1,16 @@
-import { Entity, GraphObject } from '~/src/j1/types';
-import fetch, { Response as FetchResponse } from 'node-fetch';
+import { Entity, EntityPropertyValue } from '~/src/j1/types';
+import fetch, { RequestInit, Response as FetchResponse } from 'node-fetch';
 import { print as graphqlAstToString } from 'graphql/language/printer';
 import { DocumentNode } from 'graphql';
 import * as j1GraphQL from './j1GraphQL';
+import { EntityForSync, RelationshipForSync } from '~/src/types';
+import { retry } from '@lifeomic/attempt';
+
+export type JupiterOneEnvironment = 'localhost' | 'dev' | 'prod' | undefined;
 
 export type J1Options = {
   accountId: string;
-  dev: boolean;
+  targetEnvironment: JupiterOneEnvironment;
   apiKey: string;
 };
 
@@ -38,43 +42,10 @@ class GraphQLResponseError extends Error {
   }
 }
 
-class FetchResponseError extends Error {
-  constructor(options: {
-    requestName: string;
-    response: FetchResponse;
-    responseBody: string;
-  }) {
-    super(
-      `JupiterOne API request failed (request=${options.requestName}, status=${options.response.status}). RESPONSE=${options.responseBody}`
-    );
-  }
-}
-
 export type JupiterOneQuery<I, O> = {
   nameForLogging: string;
   ast: DocumentNode;
 };
-
-function isResponseOk(response: FetchResponse) {
-  return response.status >= 200 && response.status < 300;
-}
-
-async function createFetchResponseError(options: {
-  response: FetchResponse;
-  requestName: string;
-}) {
-  let responseBody: string;
-  try {
-    responseBody = await options.response.text();
-  } catch (err) {
-    responseBody = `(error reading body of response, error=${err.toString()})`;
-  }
-  return new FetchResponseError({
-    requestName: options.requestName,
-    response: options.response,
-    responseBody,
-  });
-}
 
 function buildRequestHeaders(
   j1Client: JupiterOneClient,
@@ -87,11 +58,12 @@ function buildRequestHeaders(
   };
 }
 async function makeGraphQLRequest<I, O>(options: {
+  apiUrl: string;
   j1Client: JupiterOneClient;
   query: JupiterOneQuery<I, O>;
   input: I;
 }) {
-  const { j1Client } = options;
+  const { apiUrl } = options;
   const headers = buildRequestHeaders(options.j1Client, {
     'Content-Type': 'application/json',
   });
@@ -101,18 +73,15 @@ async function makeGraphQLRequest<I, O>(options: {
     variables: options.input,
   };
 
-  const response = await fetch(j1Client.apiUrl + '/graphql', {
-    method: 'POST',
-    body: JSON.stringify(body),
-    headers,
-  });
-
-  if (!isResponseOk(response)) {
-    throw await createFetchResponseError({
-      response,
-      requestName: options.query.nameForLogging,
-    });
-  }
+  const response = await makeFetchRequest(
+    apiUrl,
+    {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers,
+    },
+    options.query.nameForLogging
+  );
 
   const bodyObj = await response.json();
   const errors = (bodyObj as GraphQLApiResponseBodyWithErrors).errors;
@@ -141,6 +110,7 @@ async function makeDeferredJ1QLRequest<T>(options: {
   j1qlVariables: j1GraphQL.J1QLVariables;
 }) {
   const deferredData = await makeGraphQLRequest({
+    apiUrl: options.j1Client.queryGraphQLApiUrl,
     j1Client: options.j1Client,
     query: j1GraphQL.QUERY_DEFERRED_J1QL,
     input: {
@@ -159,16 +129,13 @@ async function makeDeferredJ1QLRequest<T>(options: {
 
     attemptNum++;
 
-    const statusResponse = await fetch(deferredData.url, {
-      method: 'GET',
-    });
-
-    if (!isResponseOk(statusResponse)) {
-      throw await createFetchResponseError({
-        response: statusResponse,
-        requestName: 'Deferred J1QL Query Status',
-      });
-    }
+    const statusResponse = await makeFetchRequest(
+      deferredData.url,
+      {
+        method: 'GET',
+      },
+      'Deferred J1QL Query Status'
+    );
 
     j1qlState = await statusResponse.json();
     if (j1qlState!.status === 'FAILED') {
@@ -192,23 +159,178 @@ type EntityListItem = {
   properties: object;
 };
 
-type RelationshipListItem = {
+async function validateSyncJobResponse(response: FetchResponse) {
+  const rawBody = await response.json();
+  const body = rawBody as Partial<SyncJobResonse>;
+  if (!body.job) {
+    throw new Error(
+      `JupiterOne API error. Sync job response did not return job. Response: ${JSON.stringify(
+        rawBody,
+        null,
+        2
+      )}`
+    );
+  }
+  return body as SyncJobResonse;
+}
+
+export enum SyncJobStatus {
+  AWAITING_UPLOADS = 'AWAITING_UPLOADS',
+  FINALIZE_PENDING = 'FINALIZE_PENDING',
+  FINALIZING_ENTITIES = 'FINALIZING_ENTITIES',
+  FINALIZING_RELATIONSHIPS = 'FINALIZING_RELATIONSHIPS',
+  ABORTED = 'ABORTED',
+  FINISHED = 'FINISHED',
+  UNKNOWN = 'UNKNOWN',
+  ERROR_BAD_DATA = 'ERROR_BAD_DATA',
+  ERROR_UNEXPECTED_FAILURE = 'ERROR_UNEXPECTED_FAILURE',
+}
+
+export type SyncJob = {
+  source: string;
+  scope: string;
+  accountId: string;
   id: string;
-  relationship: object;
-  properties: object;
+  status: SyncJobStatus;
+  done: boolean;
+  startTimestamp: number;
+  numEntitiesUploaded: number;
+  numEntitiesCreated: number;
+  numEntitiesUpdated: number;
+  numEntitiesDeleted: number;
+  numEntityCreateErrors: number;
+  numEntityUpdateErrors: number;
+  numEntityDeleteErrors: number;
+  numEntityRawDataEntriesUploaded: number;
+  numEntityRawDataEntriesCreated: number;
+  numEntityRawDataEntriesUpdated: number;
+  numEntityRawDataEntriesDeleted: number;
+  numEntityRawDataEntryCreateErrors: number;
+  numEntityRawDataEntryUpdateErrors: number;
+  numEntityRawDataEntryDeleteErrors: number;
+  numRelationshipsUploaded: number;
+  numRelationshipsCreated: number;
+  numRelationshipsUpdated: number;
+  numRelationshipsDeleted: number;
+  numRelationshipCreateErrors: number;
+  numRelationshipUpdateErrors: number;
+  numRelationshipDeleteErrors: number;
+  numRelationshipRawDataEntriesUploaded: number;
+  numRelationshipRawDataEntriesCreated: number;
+  numRelationshipRawDataEntriesUpdated: number;
+  numRelationshipRawDataEntriesDeleted: number;
+  numRelationshipRawDataEntryCreateErrors: number;
+  numRelationshipRawDataEntryUpdateErrors: number;
+  numRelationshipRawDataEntryDeleteErrors: number;
+  numMappedRelationshipsCreated: number;
+  numMappedRelationshipsUpdated: number;
+  numMappedRelationshipsDeleted: number;
+  numMappedRelationshipCreateErrors: number;
+  numMappedRelationshipUpdateErrors: number;
+  numMappedRelationshipDeleteErrors: number;
+  syncMode: 'DIFF' | 'CREATE_OR_UPDATE';
 };
+
+export type SyncJobResonse = {
+  job: SyncJob;
+};
+
+class FetchError extends Error {
+  httpStatusCode: number;
+
+  constructor(options: {
+    responseBody: string;
+    response: FetchResponse;
+    method: string;
+    url: string;
+    nameForLogging?: string;
+  }) {
+    super(
+      `JupiterOne API error. Response not OK (requestName=${
+        options.nameForLogging || '(none)'
+      }, status=${status}, url=${options.url}, method=${
+        options.method
+      }). Response: ${options.responseBody}`
+    );
+    this.httpStatusCode = options.response.status;
+  }
+}
+
+async function makeFetchRequest(
+  url: string,
+  options: RequestInit,
+  nameForLogging?: string
+) {
+  return retry(
+    async () => {
+      const response = await fetch(url, options);
+      const { status } = response;
+      if (status < 200 || status >= 300) {
+        const responseBody = await response.text();
+        throw new FetchError({
+          method: options.method!,
+          response,
+          responseBody,
+          url,
+          nameForLogging,
+        });
+      }
+      return response;
+    },
+    {
+      maxAttempts: 5,
+      delay: 1000,
+      handleError(err, context, options) {
+        const possibleFetchError = err as Partial<FetchError>;
+        const { httpStatusCode } = possibleFetchError;
+        if (httpStatusCode !== undefined) {
+          if (httpStatusCode < 500) {
+            context.abort();
+          }
+        }
+      },
+    }
+  );
+}
 
 class JupiterOneClient {
   apiKey: string;
-  apiUrl: string;
+  persisterRestApiUrl: string;
+  persisterGraphQLApiUrl: string;
+  queryGraphQLApiUrl: string;
   accountId: string;
 
   constructor(options: J1Options) {
     this.apiKey = options.apiKey.trim();
-    this.apiUrl = options.dev
-      ? 'https://api.dev.jupiterone.io'
-      : 'https://api.us.jupiterone.io';
-    this.accountId = options.accountId;
+    this.accountId = options.accountId.trim();
+
+    let persisterRestApiUrl: string;
+    let persisterGraphQLApiUrl: string;
+    let queryGraphQLApiUrl: string;
+
+    const targetEnvironment = options.targetEnvironment || 'prod';
+
+    if (targetEnvironment === 'localhost') {
+      persisterRestApiUrl = 'http://localhost:8080';
+      persisterGraphQLApiUrl = 'http://localhost:8080/persister/graphql';
+      queryGraphQLApiUrl = 'https://api.dev.jupiterone.io/graphql';
+    } else if (targetEnvironment === 'prod') {
+      persisterRestApiUrl = 'https://api.us.jupiterone.io';
+      persisterGraphQLApiUrl = 'https://api.us.jupiterone.io/graphql';
+      queryGraphQLApiUrl = 'https://api.us.jupiterone.io/graphql';
+    } else if (targetEnvironment === 'dev') {
+      persisterRestApiUrl = 'https://api.dev.jupiterone.io';
+      persisterGraphQLApiUrl = 'https://api.dev.jupiterone.io/graphql';
+      queryGraphQLApiUrl = 'https://api.dev.jupiterone.io/graphql';
+    } else {
+      throw new Error(
+        'Unrecognized target JupiterOne environment: ' + targetEnvironment
+      );
+    }
+
+    this.persisterRestApiUrl = persisterRestApiUrl;
+    this.persisterGraphQLApiUrl = persisterGraphQLApiUrl;
+    this.queryGraphQLApiUrl = queryGraphQLApiUrl;
   }
 
   async queryForEntityList(j1ql: string): Promise<Entity[]> {
@@ -232,37 +354,23 @@ class JupiterOneClient {
     return entities;
   }
 
-  async queryForGraphObjectTable(
+  async queryForEntityTableList(
     j1ql: string
-  ): Promise<Record<string, GraphObject>[]> {
+  ): Promise<Record<string, EntityPropertyValue>[]> {
     const queryResponse: {
       type: 'table';
       totalCount: number;
-      data: Record<string, EntityListItem | RelationshipListItem>[];
+      data: Record<string, EntityPropertyValue>[];
     } = await makeDeferredJ1QLRequest({
       j1Client: this,
       j1ql,
       j1qlVariables: {},
     });
 
-    return queryResponse.data.map((item) => {
-      const finalItem: Record<string, GraphObject> = {};
-      for (const key of Object.keys(item)) {
-        const graphObjectForKey = item[key];
-        const possibleEntity = (graphObjectForKey as EntityListItem).entity;
-        const possibleRelationship = (graphObjectForKey as RelationshipListItem)
-          .relationship;
-        finalItem[key] = {
-          ...graphObjectForKey.properties,
-          ...possibleEntity,
-          ...possibleRelationship,
-        } as GraphObject;
-      }
-      return finalItem;
-    });
+    return queryResponse.data;
   }
 
-  async upsertEntityRawData(options: {
+  async uploadEntityRawData(options: {
     entityId: string;
     entryName: string;
     contentType: 'text/html' | 'application/json';
@@ -271,8 +379,8 @@ class JupiterOneClient {
     const headers = buildRequestHeaders(this, {
       'Content-Type': options.contentType,
     });
-    await fetch(
-      this.apiUrl +
+    await makeFetchRequest(
+      this.persisterRestApiUrl +
         `/entities/${options.entityId}/raw-data/${options.entryName}`,
       {
         method: 'PUT',
@@ -285,27 +393,90 @@ class JupiterOneClient {
     );
   }
 
-  async createRelationship(input: j1GraphQL.CreateRelationshipInput) {
-    return makeGraphQLRequest({
-      j1Client: this,
-      input,
-      query: j1GraphQL.MUTATION_CREATE_RELATIONSHIP,
+  async startSyncJob(options: { source: 'api'; scope: string }) {
+    const headers = buildRequestHeaders(this, {
+      'Content-Type': 'application/json',
     });
+    const response = await makeFetchRequest(
+      this.persisterRestApiUrl + `/persister/synchronization/jobs`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(options),
+      }
+    );
+    return validateSyncJobResponse(response);
   }
 
-  async createEntity(input: j1GraphQL.CreateEntityInput) {
-    return makeGraphQLRequest({
-      j1Client: this,
-      input,
-      query: j1GraphQL.MUTATION_CREATE_ENTITY,
+  async uploadGraphObjectsForSyncJob(options: {
+    syncJobId: string;
+    entities?: EntityForSync[];
+    relationships?: RelationshipForSync[];
+  }) {
+    const { syncJobId, entities, relationships } = options;
+    const headers = buildRequestHeaders(this, {
+      'Content-Type': 'application/json',
     });
+    const response = await makeFetchRequest(
+      this.persisterRestApiUrl +
+        `/persister/synchronization/jobs/${syncJobId}/upload`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          entities,
+          relationships,
+        }),
+      }
+    );
+    return validateSyncJobResponse(response);
+  }
+
+  async finalizeSyncJob(options: { syncJobId: string }) {
+    const { syncJobId } = options;
+    const headers = buildRequestHeaders(this, {
+      'Content-Type': 'application/json',
+    });
+    const response = await makeFetchRequest(
+      this.persisterRestApiUrl +
+        `/persister/synchronization/jobs/${syncJobId}/finalize`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({}),
+      }
+    );
+    return validateSyncJobResponse(response);
+  }
+
+  async fetchSyncJobStatus(options: { syncJobId: string }) {
+    const { syncJobId } = options;
+    const headers = buildRequestHeaders(this);
+    const response = await makeFetchRequest(
+      this.persisterRestApiUrl + `/persister/synchronization/jobs/${syncJobId}`,
+      {
+        method: 'GET',
+        headers,
+      }
+    );
+    return validateSyncJobResponse(response);
   }
 
   async updateEntity(input: j1GraphQL.UpdateEntityInput) {
     return makeGraphQLRequest({
+      apiUrl: this.persisterGraphQLApiUrl,
       j1Client: this,
       input,
       query: j1GraphQL.MUTATION_UPDATE_ENTITY,
+    });
+  }
+
+  async updateRelationship(input: j1GraphQL.UpdateRelationshipInput) {
+    return makeGraphQLRequest({
+      apiUrl: this.persisterGraphQLApiUrl,
+      j1Client: this,
+      input,
+      query: j1GraphQL.MUTATION_UPDATE_RELATIONSHIP,
     });
   }
 }

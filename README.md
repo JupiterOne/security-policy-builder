@@ -130,11 +130,17 @@ online.
 
 ```bash
 psp publish -c ./config.json -t ./templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN
+```
 
 or
 
+```bash
 docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder psp publish -c /mnt/config.json -t /mnt/templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN
 ```
+
+You can optionally add the `--wait` option if you would like to wait for the
+background publishing work to complete. When the `--wait` is used a full report
+of the publish job is printed to the console.
 
 Alternatively, you may use username/password auth by passing the
 `-u $J1_USERNAME` flag instead of `-k`. This will interactively prompt you for

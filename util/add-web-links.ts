@@ -10,9 +10,23 @@
  * Prerequisite: Node.js version 10 or later.
  */
 import * as error from '../src/error';
-import program from 'commander';
+import commander from 'commander';
+import { PolicyBuilderConfig, PolicyBuilderElement } from '~/src/types';
 
-program
+type ProgramInput = {
+  version?: string;
+  site?: string;
+  domain?: string;
+  key?: string;
+  replaceSpace?: string;
+  config?: string;
+  param?: string;
+  policyParam?: string;
+  procedureParam?: string;
+  lowerCase?: boolean;
+};
+
+const program = commander
   .version(require('../package').version, '-v, --version')
   .usage('[options]')
   .option(
@@ -45,7 +59,8 @@ program
     'use either "name" or "id" from each procedure to build the URL'
   )
   .option('-l, --lower-case', 'use all lowercase URL')
-  .parse(process.argv);
+  .parse(process.argv)
+  .opts() as ProgramInput;
 
 const fs = require('fs');
 const configFile = 'templates/config.json';
@@ -55,12 +70,23 @@ const site = program.site || 'default';
 const key = program.key;
 const spaceChar = program.replaceSpace || '';
 const param = program.param || (site === 'default' ? 'id' : 'name');
-const policyParam = program.policyParam || (site === 'mkdocs' && 'id');
+const policyParam =
+  program.policyParam || (site === 'mkdocs' ? 'id' : undefined);
 const procedureParam = program.procedureParam || (site === 'mkdocs' && 'name');
 const forceLowerCase = program.lowerCase || site === 'mkdocs';
 const sectionPrefix = '';
 
-const sites = {
+type SiteName = 'sharepoint' | 'confluence' | 'mkdocs' | 'custom' | 'default';
+
+const sites: Record<
+  SiteName,
+  | {
+      baseUrl: string;
+      spaceChar: string;
+      sectionPrefix: string;
+    }
+  | undefined
+> = {
   sharepoint: {
     baseUrl: `https://${domain}.sharepoint.com/SitePages${
       key ? '/' + key : ''
@@ -90,14 +116,15 @@ const sites = {
   },
 };
 
-const config = JSON.parse(fs.readFileSync(configFile));
-const siteConfig = sites[site.toLowerCase()];
+const config = JSON.parse(fs.readFileSync(configFile)) as PolicyBuilderConfig;
+const siteName = site.toLocaleLowerCase() as SiteName;
+const siteConfig = sites[siteName];
 
 if (!siteConfig) {
-  error.fatal(`Unsupported site: ${site}`);
+  throw error.fatal(`Unsupported site: ${site}`);
 }
 
-const mapping = {};
+const mapping: Record<string, PolicyBuilderElement> = {};
 
 for (const policy of config.policies || []) {
   for (const procedureId of policy.procedures || []) {
@@ -109,8 +136,8 @@ for (const procedure of config.procedures || []) {
   const id = procedure.id;
   const policy = mapping[id];
 
-  const part1 = policyParam ? policy[policyParam] : policy[param];
-  const part2 = procedureParam ? procedure[procedureParam] : procedure[param];
+  const part1 = (policy as any)[policyParam || param] as string;
+  const part2 = (procedure as any)[procedureParam || param] as string;
 
   const webLink = `${siteConfig.baseUrl}/${part1.replace(
     /\s/g,

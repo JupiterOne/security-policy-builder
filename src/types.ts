@@ -1,4 +1,8 @@
 import { Opaque } from 'type-fest';
+import {
+  EntityAdditionalProperties,
+  RelationshipAdditionalProperties,
+} from '~/src/j1/types';
 
 export interface PolicyBuilderElement {
   id: string;
@@ -210,3 +214,37 @@ export type StandardConfig = {
     requirements: StandardRequirement[];
   }[];
 };
+
+export type SecurityEntityType =
+  | 'security_policy'
+  | 'security_procedure'
+  | 'security_document';
+
+export type SecurityRelationshipType = 'procedure|implements|policy';
+export type SecurityEntityClass = 'Document' | 'Policy' | 'Procedure';
+export type SecurityRelationshipClass = 'IMPLEMENTS';
+
+export type EntityForSync = EntityAdditionalProperties & {
+  _key: string;
+  _class: SecurityEntityClass[];
+  _type: SecurityEntityType;
+  _rawData?: Record<
+    string,
+    {
+      body: string;
+      contentType: 'application/json';
+    }
+  >;
+};
+
+export type RelationshipForSync = RelationshipAdditionalProperties & {
+  _key: string;
+  _class: SecurityRelationshipClass;
+  _type: SecurityRelationshipType;
+  _fromEntityKey: string;
+  _toEntityKey: string;
+};
+
+export type SectionName = 'policies' | 'procedures' | 'references';
+
+export type TemplateData = Record<SectionName, Record<string, string>>;
