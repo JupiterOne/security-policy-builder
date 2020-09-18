@@ -5,7 +5,6 @@ import inquirer, {
   InputQuestion,
   QuestionCollection,
 } from 'inquirer';
-import program from 'commander';
 import chalk from 'chalk';
 import fs from 'fs-extra';
 import { baseQuestions } from './questions/base';
@@ -24,7 +23,11 @@ import pickAdopted from '~/src/util/pickAdopted';
 // expects initial configuration object
 // interactively prompts for any unconfigured organization values
 // returns fully populated configuration object
-async function promptForValues(config: PolicyBuilderConfig) {
+async function promptForValues(options: {
+  config: PolicyBuilderConfig;
+  noninteractive?: boolean;
+}) {
+  const { config, noninteractive } = options;
   // prompt for any missing values
   const answers = await safeInquirerPrompt(
     missingOrEmptyOrganizationValues(config.organization)
@@ -39,7 +42,7 @@ async function promptForValues(config: PolicyBuilderConfig) {
   console.log(JSON.stringify(config.organization, null, 2));
 
   // conditionally confirm and save configuration
-  if (!program.noninteractive) {
+  if (noninteractive !== true) {
     const save = await inquirer.prompt(promptForSave);
     if (save.selected) {
       try {

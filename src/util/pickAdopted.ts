@@ -1,7 +1,7 @@
 import { PolicyBuilderElement } from '~/src/types';
 
 function adoptedFilter(item: { adopted?: boolean }) {
-  return item.adopted === true;
+  return item.adopted !== false;
 }
 
 export default function pickAdopted<T extends PolicyBuilderElement>(

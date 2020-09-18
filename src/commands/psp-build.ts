@@ -2,7 +2,7 @@ import { PolicyBuilderConfig, PolicyBuilderPaths } from '~/src/types';
 import { policybuilder } from '~/src';
 import pluralize from 'pluralize';
 import * as configure from '~/src/configure';
-import program from 'commander';
+import commander from 'commander';
 import chalk from 'chalk';
 import * as error from '~/src/error';
 import path from 'path';
@@ -11,6 +11,16 @@ import { DEFAULT_TEMPLATES } from '~/src/constants';
 import packageJson from '~/package.json';
 
 const EUSAGEERROR = 126;
+
+type ProgramInput = {
+  version?: string;
+  templates?: string;
+  savetemplates?: string;
+  noninteractive?: boolean;
+  config?: string;
+  output?: string;
+  partials?: string;
+};
 
 export async function run() {
   // establish root project directory so sane relative paths work
@@ -23,7 +33,7 @@ export async function run() {
     }
   }
 
-  program
+  const program = commander
     .version(packageJson.version, '-v, --version')
     .usage('[options]')
     .option(
@@ -45,7 +55,8 @@ export async function run() {
       'optional path to partial files.',
       'partials'
     )
-    .parse(process.argv);
+    .parse(process.argv)
+    .opts() as ProgramInput;
 
   if (!program.templates) {
     // if unspecified via the --templates flag,
@@ -63,9 +74,9 @@ export async function run() {
   }
 
   const paths: PolicyBuilderPaths = {
-    partials: program.partials,
+    partials: program.partials!,
     templates: program.templates,
-    output: program.output,
+    output: program.output!,
   };
 
   (Object.keys(paths) as (keyof PolicyBuilderPaths)[]).forEach((path) => {
@@ -97,7 +108,10 @@ export async function run() {
   }
 
   // ensure we have the configuration values we need
-  config = await configure.promptForValues(config);
+  config = await configure.promptForValues({
+    config,
+    noninteractive: program.noninteractive,
+  });
 
   const { renderedPartials, renderedPSPDocs } = await policybuilder(
     config,
@@ -107,7 +121,7 @@ export async function run() {
   showStatus(renderedPartials);
   showStatus(renderedPSPDocs);
 
-  await exposeTemplates();
+  await exposeTemplates(program);
 }
 
 function showStatus(items: { ok: string[]; errors: string[]; type: string }) {
@@ -124,12 +138,12 @@ function showStatus(items: { ok: string[]; errors: string[]; type: string }) {
   }
 }
 
-async function exposeTemplates() {
+async function exposeTemplates(program: ProgramInput) {
   const targetDir = program.savetemplates
     ? program.savetemplates
     : path.join(process.cwd(), 'templates');
   if (!(await fs.pathExists(targetDir))) {
-    await fs.copy(program.templates, targetDir);
+    await fs.copy(program.templates!, targetDir);
     console.log(`copied templates into ${targetDir} for future modification.`);
   }
 }
