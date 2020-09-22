@@ -1,4 +1,4 @@
-FROM node:12.14.0
+FROM node:14.11.0
 WORKDIR /opt
 RUN apt-get update && apt-get install --assume-yes \
   aspell \
