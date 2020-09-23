@@ -1,3 +1,0 @@
-#!/bin/bash
-cd /opt || exit 2
-./bin/psp "$@"
