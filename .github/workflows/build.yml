@@ -3,74 +3,105 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [12.x]
-        os: [ubuntu-latest]
-
-    steps:
-      - id: setup-node
-        name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Check out code repository source code
-        uses: actions/checkout@v2
-
-      - name: Install dependencies
-        run: yarn
-
-      - name: Bundle module
-        run: yarn bundle
-
-  # Publishing is done in a separate job to allow
-  # for all matrix builds to complete.
-  release:
-    needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-    strategy:
-      fail-fast: false
-      matrix:
-        node: [12]
 
     steps:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: 12.x
+          node-version: '14'
 
-      - name: Check out repo
+      - name: Check out source code
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 2
 
-      # Fetch tags and describe the commit before the merge commit
-      # to see if it's a version publish
+      - name: Install dependencies
+        run: yarn
+
+      - name: Execute Tests
+        run: yarn test
+
+      - name: Verify that NPM module builds
+        run: yarn bundle
+
+      - name: Verify that Docker image builds
+        run: docker build .
+
+
+  npm:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Initialize Output
+        run: echo "::set-output name=didpublishnpm::false"
+
       - name: Fetch tags
+        if: github.ref == 'refs/heads/master'
         run: |
           git fetch --tags
           if git describe --exact-match --match "v*.*.*" HEAD^2
           then
             echo "Found version commit tag. Publishing."
-            echo "::set-env name=publish::true"
+            echo "::set-env name=npmpublish::true"
           else
             echo "Version commit tag not found. Not publishing."
           fi
 
+      - name: Setup Node
+        if: env.npmpublish
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: Check out source code
+        if: env.npmpublish
+        uses: actions/checkout@v2
+
       - name: Install dependencies
+        if: env.npmpublish
         run: yarn
 
-      - name: Bundle module
+      - name: Bundle module (create ./dist dir)
+        if: env.npmpublish
         run: yarn bundle
 
       - name: Publish
-        if: env.publish == 'true'
+        if: env.npmpublish
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         run: |
           echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > .npmrc
-          npm publish ./dist --access public
+          npm publish --access public ./dist
+          echo "::set-output name=didpublishnpm::true"
+
+  docker:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    needs: [test, npm]
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v2
+
+      - name: Detect Dockerfile changes
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            dockerchanged:
+              - 'Dockerfile'
+
+      - name: Should Build?
+        if: steps.filter.outputs.dockerchanged == 'true' || needs.npm.outputs.didpublishnpm == 'true'
+        run: |
+          echo "Dockerfile changed, and/or new NPM module published. Need to update Docker image."
+          echo '::set-env name=need_docker_build::true'
+
+      - name: Build and push to Docker Hub
+        if: env.need_docker_build
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: jupiterone/pspbuilder
+          tags: latest
