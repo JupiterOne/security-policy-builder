@@ -28,6 +28,7 @@ jobs:
 
 
   npm:
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     needs: test
 
@@ -35,8 +36,10 @@ jobs:
       - name: Initialize Output
         run: echo "::set-output name=didpublishnpm::false"
 
+      - name: Check out source code
+        uses: actions/checkout@v2
+
       - name: Fetch tags
-        if: github.ref == 'refs/heads/master'
         run: |
           git fetch --tags
           if git describe --exact-match --match "v*.*.*" HEAD^2
@@ -52,10 +55,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '14'
-
-      - name: Check out source code
-        if: env.npmpublish
-        uses: actions/checkout@v2
 
       - name: Install dependencies
         if: env.npmpublish
@@ -73,6 +72,7 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > .npmrc
           npm publish --access public ./dist
           echo "::set-output name=didpublishnpm::true"
+
 
   docker:
     if: github.ref == 'refs/heads/master'
