@@ -319,7 +319,7 @@ The supported `jupiterone/pspbuilder` docker image has the necessary pandoc
 dependencies installed. You may issue commands like:
 
 ```bash
-docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder pandoc /mnt/docs/filename.md -f markdown -t latex --pdf-engine=xelatex --variable monofont="Monaco" -o /mnt/pdf/filename.pdf
+docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder-extras pandoc /mnt/docs/filename.md -f markdown -t latex --pdf-engine=xelatex --variable monofont="Monaco" -o /mnt/pdf/filename.pdf
 ```
 
 to convert a single markdown file into a PDF.
@@ -397,7 +397,7 @@ pandoc *.md -f markdown -t latex --latex-engine=xelatex --variable monofont="inc
 Then, issue:
 
 ```bash
-docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder /mnt/pdf.sh
+docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder-extras /mnt/pdf.sh
 ```
 
 This should stitch together all of your markdown files (in alphabetical order
