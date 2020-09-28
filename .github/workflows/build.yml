@@ -124,7 +124,7 @@ jobs:
         with:
           filters: |
             dockerchanged:
-              - 'Dockerfile-full'
+              - 'Dockerfile-extras'
 
       - name: Should Build?
         if: steps.filter.outputs.dockerchanged == 'true' || needs.npm.outputs.didpublishnpm == 'true'
