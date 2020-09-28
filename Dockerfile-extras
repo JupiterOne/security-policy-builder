@@ -1,4 +1,5 @@
 FROM node:14.11.0-stretch-slim
+# Debian stretch base-image, minimized
 WORKDIR /opt
 
 # Install pandoc and other linting/helper tools
