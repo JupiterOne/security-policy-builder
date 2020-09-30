@@ -5612,10 +5612,10 @@ type-fest@^0.11.0:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.11.0.tgz#97abf0872310fed88a5c466b25681576145e33f1"
   integrity sha512-OdjXJxnCN1AvyLSzeKIgXTXxV+99ZuXl3Hpo9XpJAv9MBcHrrJOQ5kV7ypXOuQie+AmWG25hLbiKdwYTifzcfQ==
 
-type-fest@^0.16.0:
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.16.0.tgz#3240b891a78b0deae910dbeb86553e552a148860"
-  integrity sha512-eaBzG6MxNzEn9kiwvtre90cXaNLkmadMWa1zQMs3XORCXNbsH/OewwbxC5ia9dCxIxnTAsSxXJaa/p5y8DlvJg==
+type-fest@^0.17.0:
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.17.0.tgz#268bb55d38701ce3915f60a4367a1e9f28672deb"
+  integrity sha512-EFi9HE4hHj85XnVV80uAUMgICQmhxYgiEvtmfpcD6jqn6zYr36HxAU6k+i/DSY28TK7/lYL0s4v/kWmiKdqaoA==
 
 type-fest@^0.6.0:
   version "0.6.0"
