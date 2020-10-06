@@ -1138,9 +1138,9 @@
     chalk "^4.0.0"
 
 "@jupiterone/security-policy-templates@^2.9.0":
-  version "2.10.0"
-  resolved "https://registry.yarnpkg.com/@jupiterone/security-policy-templates/-/security-policy-templates-2.10.0.tgz#b165214ad7544f24d98cdc302ab1ba146b337360"
-  integrity sha512-RkmlU49qySFOD0ryJuizVofHTZ3wdbYlNqbBab9+jAsjt/DiZ4Hvg43TRQ30LaxJ1yAuIAbx92lk6aWl3Vq/UQ==
+  version "2.11.0"
+  resolved "https://registry.yarnpkg.com/@jupiterone/security-policy-templates/-/security-policy-templates-2.11.0.tgz#78f12b875e09e5c6040c8962c7a9fe6c4ec10be7"
+  integrity sha512-6Q1WC5BlJackBW85IZcM9nmA+bbI7XZX0Wj7ibFgylG29LxVgYUuzix9K5C25oKlyhbEGUIMTZCpBBASBW2Raw==
 
 "@jupiterone/typescript-tools@^12.0.8":
   version "12.0.8"
