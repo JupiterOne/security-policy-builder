@@ -1,4 +1,4 @@
-FROM node:14.13.1-stretch-slim
+FROM node:15.2.0-stretch-slim
 WORKDIR /opt
 
 # Install pandoc and other linting/helper tools
