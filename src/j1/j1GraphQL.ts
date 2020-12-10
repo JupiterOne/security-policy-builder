@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import { EntityPropertyValue, Entity, Relationship } from '~/src/j1/types';
 import { JupiterOneQuery as JupiterOneGraphQLQuery } from '~/src/j1';
+import { PolicyBuilderConfig } from '../types';
 
 export type J1QLVariables = Record<string, EntityPropertyValue>;
 
@@ -81,6 +82,30 @@ export const MUTATION_UPDATE_RELATIONSHIP: JupiterOneGraphQLQuery<
         relationship: $relationship
       ) {
         relationship
+      }
+    }
+  `,
+};
+
+export type UpdateConfigInput = {
+  values: PolicyBuilderConfig['organization'];
+};
+
+export type UpdateConfigOutput = {
+  values: {
+    config: PolicyBuilderConfig['organization'];
+  };
+};
+
+export const MUTATION_UPDATE_CONFIG: JupiterOneGraphQLQuery<
+  UpdateRelationshipInput,
+  UpdateRelationshipOutput
+> = {
+  nameForLogging: 'Update Config',
+  ast: gql`
+    mutation updateCompanyValues($values: JSON!) {
+      updateCompanyValues(values: $values) {
+        values
       }
     }
   `,

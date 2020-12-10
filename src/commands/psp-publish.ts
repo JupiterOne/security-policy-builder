@@ -140,7 +140,6 @@ export async function run() {
   const templateData = await readTemplateData(program, config);
   const j1Client = initializeJ1Client(program);
   await storeConfigWithAccount(program, j1Client, config);
-
   await migrateOldSecurityEntitiesToSyncScope(j1Client);
   await migrateOldSecurityRelationshipsToSyncScope(j1Client);
 
@@ -331,22 +330,6 @@ function initializeJ1Client(program: ProgramInput) {
   return j1Client;
 }
 
-async function findAccountEntity(
-  j1Client: JupiterOneClient,
-  accountName: string
-) {
-  const accountEntity = (
-    await j1Client.queryForEntityList('find jupiterone_account')
-  ).pop();
-  if (!accountEntity) {
-    error.fatal(
-      `Could not find account (${accountName}) in JupiterOne. Please make sure you have ` +
-        'gone through the new customer onboarding process, and try again.'
-    );
-  }
-  return accountEntity;
-}
-
 async function collectGraphObjectIdsForQueryHelper(
   j1Client: JupiterOneClient,
   basequery: string
@@ -530,16 +513,13 @@ async function storeConfigWithAccount(
   configData: PolicyBuilderConfig
 ) {
   const accountId = program.account!;
-  const accountEntity = (await findAccountEntity(j1Client, accountId))!;
-
   process.stdout.write('Storing config with JupiterOne account... ');
   try {
-    await j1Client.uploadEntityRawData({
-      entityId: accountEntity._id,
-      entryName: 'policyBuilderConfig',
-      contentType: 'application/json',
-      body: configData,
+    const result = await j1Client.updateConfig({
+      values: configData.organization,
     });
+    console.log('OK');
+    return result;
   } catch (err) {
     throw error.fatal(
       `Error storing PSP configuration data with account (${accountId}). Error: ${
@@ -547,9 +527,6 @@ async function storeConfigWithAccount(
       }`
     );
   }
-
-  console.log('OK');
-  return accountEntity;
 }
 
 function buildEntityKey(options: {

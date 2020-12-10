@@ -479,6 +479,18 @@ class JupiterOneClient {
       query: j1GraphQL.MUTATION_UPDATE_RELATIONSHIP,
     });
   }
+
+  async updateConfig(input: j1GraphQL.UpdateConfigInput) {
+    return makeGraphQLRequest<
+      j1GraphQL.UpdateConfigInput,
+      j1GraphQL.UpdateConfigOutput
+    >({
+      apiUrl: this.queryGraphQLApiUrl,
+      j1Client: this,
+      input,
+      query: j1GraphQL.MUTATION_UPDATE_CONFIG,
+    });
+  }
 }
 
 export function createJupiterOneClient(options: J1Options) {
