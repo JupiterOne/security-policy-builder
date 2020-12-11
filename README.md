@@ -138,12 +138,6 @@ or
 docker run -it -v "$PWD":/mnt --rm jupiterone/pspbuilder psp publish -c /mnt/config.json -t /mnt/templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN
 ```
 
-By default, the `psp publish` command will submit your data to JupiterOne as a
-background job and immediately return. You can optionally add the `--wait`
-option if you would like to wait for the background publishing work to complete.
-When the `--wait` is used, the command polls JupiterOne until the task is
-complete, and a full report of the publish job is printed to the console.
-
 Your JupiterOne token must have `Policies:Admin` privilege, or be issued by an
 account Administrator, in order to publish the contents.
 

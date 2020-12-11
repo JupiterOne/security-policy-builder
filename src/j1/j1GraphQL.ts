@@ -98,14 +98,98 @@ export type UpdateConfigOutput = {
 };
 
 export const MUTATION_UPDATE_CONFIG: JupiterOneGraphQLQuery<
-  UpdateRelationshipInput,
-  UpdateRelationshipOutput
+  UpdateConfigInput,
+  UpdateConfigOutput
 > = {
   nameForLogging: 'Update Config',
   ast: gql`
     mutation updateCompanyValues($values: JSON!) {
       updateCompanyValues(values: $values) {
         values
+      }
+    }
+  `,
+};
+
+export type UpsertPolicyInput = {
+  data: {
+    id: string;
+    file: string;
+    title: string;
+    template: string;
+  };
+};
+
+export type UpsertPolicyOutput = {
+  uuid: string;
+};
+
+export const MUTATION_UPSERT_POLICY: JupiterOneGraphQLQuery<
+  UpsertPolicyInput,
+  UpsertPolicyOutput
+> = {
+  nameForLogging: 'Upsert Policy',
+  ast: gql`
+    mutation upsertPolicyById($data: CreatePolicyInput!) {
+      upsertPolicyById(data: $data) {
+        uuid
+      }
+    }
+  `,
+};
+
+export type UpsertProcedureInput = {
+  data: {
+    id: string;
+    file: string;
+    name: string;
+    policyId: string;
+    template: string;
+    provider?: string;
+    isRef?: boolean;
+    applicable?: boolean;
+    adopted?: boolean;
+    summary: string;
+  };
+};
+
+export type UpsertProcedureOutput = {
+  uuid: string;
+};
+
+export const MUTATION_UPSERT_PROCEDURE: JupiterOneGraphQLQuery<
+  UpsertPolicyInput,
+  UpsertPolicyOutput
+> = {
+  nameForLogging: 'Upsert Policy',
+  ast: gql`
+    mutation upsertProcedureById($data: CreateProcedureInput!) {
+      upsertProcedureById(data: $data) {
+        uuid
+      }
+    }
+  `,
+};
+
+export type ReorderAllItemsByMappingInput = {
+  mapping: { policies: { id: string; procedures: string[] }[] };
+};
+
+export type ReorderAllItemsByMappingOutput = {
+  uuid: string;
+};
+
+export const MUTATION_REORDER_ITEMS: JupiterOneGraphQLQuery<
+  ReorderAllItemsByMappingInput,
+  ReorderAllItemsByMappingOutput
+> = {
+  nameForLogging: 'Upsert Policy',
+  ast: gql`
+    mutation reorderAllItemsByMapping($mapping: PolicyMappingInput!) {
+      reorderAllItemsByMapping(mapping: $mapping) {
+        policies {
+          id
+        }
       }
     }
   `,

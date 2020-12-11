@@ -62,6 +62,7 @@ async function makeGraphQLRequest<I, O>(options: {
   j1Client: JupiterOneClient;
   query: JupiterOneQuery<I, O>;
   input: I;
+  resultKey?: string;
 }) {
   const { apiUrl } = options;
   const headers = buildRequestHeaders(options.j1Client, {
@@ -89,7 +90,7 @@ async function makeGraphQLRequest<I, O>(options: {
     throw new GraphQLResponseError(errors);
   }
 
-  return (bodyObj as GraphQLApiResponseBodyWithResult<O>).data.result;
+  return bodyObj.data[options.resultKey || 'result'] as O;
 }
 
 export type DeferredJ1QLQueryState = {
@@ -248,7 +249,7 @@ class FetchError extends Error {
     super(
       `JupiterOne API error. Response not OK (requestName=${
         options.nameForLogging || '(none)'
-      }, status=${status}, url=${options.url}, method=${
+      }, status=${options.response.status}, url=${options.url}, method=${
         options.method
       }). Response: ${options.responseBody}`
     );
@@ -489,6 +490,45 @@ class JupiterOneClient {
       j1Client: this,
       input,
       query: j1GraphQL.MUTATION_UPDATE_CONFIG,
+    });
+  }
+
+  async upsertPolicy(input: j1GraphQL.UpsertPolicyInput) {
+    return makeGraphQLRequest<
+      j1GraphQL.UpsertPolicyInput,
+      j1GraphQL.UpsertPolicyOutput
+    >({
+      apiUrl: this.queryGraphQLApiUrl,
+      j1Client: this,
+      input,
+      query: j1GraphQL.MUTATION_UPSERT_POLICY,
+      resultKey: 'upsertPolicyById',
+    });
+  }
+
+  async upsertProcedure(input: j1GraphQL.UpsertProcedureInput) {
+    return makeGraphQLRequest<
+      j1GraphQL.UpsertProcedureInput,
+      j1GraphQL.UpsertProcedureOutput
+    >({
+      apiUrl: this.queryGraphQLApiUrl,
+      j1Client: this,
+      input,
+      query: j1GraphQL.MUTATION_UPSERT_PROCEDURE,
+      resultKey: 'upsertProcedureById',
+    });
+  }
+
+  async reorderItems(input: j1GraphQL.ReorderAllItemsByMappingInput) {
+    return makeGraphQLRequest<
+      j1GraphQL.ReorderAllItemsByMappingInput,
+      j1GraphQL.ReorderAllItemsByMappingOutput
+    >({
+      apiUrl: this.queryGraphQLApiUrl,
+      j1Client: this,
+      input,
+      query: j1GraphQL.MUTATION_REORDER_ITEMS,
+      resultKey: 'reorderAllItemsByMapping',
     });
   }
 }
