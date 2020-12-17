@@ -1175,9 +1175,9 @@
   integrity sha512-bYq67Qzy/gErj0E0j4BsiHZrTCeys/qH55mKKDuAXYP6bXOwLILQbhGYn1i7PrRDTSIWl3g2JYy7HLAyHmFK5w==
 
 "@jupiterone/typescript-tools@^13.1.1":
-  version "13.1.1"
-  resolved "https://registry.yarnpkg.com/@jupiterone/typescript-tools/-/typescript-tools-13.1.1.tgz#4eb197649927d704bff52ebca073f84b80cd0c66"
-  integrity sha512-cZw/iQcPKtcsDWzTtrBA8nhjTThtqWdInYkiISDjdVsKUMRIKHPXxhXmZIuZz66qLXMmu/ilg4uIH/8za+4LkQ==
+  version "13.1.5"
+  resolved "https://registry.yarnpkg.com/@jupiterone/typescript-tools/-/typescript-tools-13.1.5.tgz#d280598802857cc1927f12736f5c78da94668f5a"
+  integrity sha512-4v5Uu9/iaTB2Y1qh10R2FF3z2h+BMSOYHkamTYBM13sME0SA8ZSq+nFjfbiYNbH+bObcRG6x3OC1wRYIxCjWvw==
   dependencies:
     "@babel/cli" "^7.11.6"
     "@babel/core" "^7.11.6"
