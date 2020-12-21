@@ -1,4 +1,4 @@
-FROM node:14.15.1-stretch-slim
+FROM node:14.15.3-stretch-slim
 # Debian stretch base-image, minimized
 WORKDIR /opt
 
