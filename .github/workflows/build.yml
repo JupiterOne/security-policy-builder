@@ -39,33 +39,35 @@ jobs:
       - name: Check out source code
         uses: actions/checkout@v2
 
-      - name: Fetch tags
+      - name: Check if publish needed
         run: |
-          git fetch --tags
-          if git describe --exact-match --match "v*.*.*" HEAD^2
+          name="$(jq -r .name package.json)"
+          npmver="$(npm show $name version 2>/dev/null || echo v0.0.0)"
+          pkgver="$(jq -r .version package.json)"
+          if [ "$npmver" = "$pkgver" ]
           then
-            echo "Found version commit tag. Publishing."
-            echo "::set-env name=npmpublish::true"
+            echo "Package version ($pkgver) is the same as last published NPM version ($npmver), skipping publish."
           else
-            echo "Version commit tag not found. Not publishing."
+            echo "Package version ($pkgver) is different from latest NPM version ($npmver), publishing!"
+            echo "shouldpublishnpm=true" >> $GITHUB_ENV
           fi
 
       - name: Setup Node
-        if: env.npmpublish
+        if: env.shouldpublishnpm
         uses: actions/setup-node@v1
         with:
           node-version: '14'
 
       - name: Install dependencies
-        if: env.npmpublish
+        if: env.shouldpublishnpm
         run: yarn
 
       - name: Bundle module (create ./dist dir)
-        if: env.npmpublish
+        if: env.shouldpublishnpm
         run: yarn bundle
 
       - name: Publish
-        if: env.npmpublish
+        if: env.shouldpublishnpm
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         run: |
@@ -95,7 +97,7 @@ jobs:
         if: steps.filter.outputs.dockerchanged == 'true' || needs.npm.outputs.didpublishnpm == 'true'
         run: |
           echo "Dockerfile changed, and/or new NPM module published. Need to update Docker image."
-          echo '::set-env name=need_docker_build::true'
+          echo "need_docker_build=true" >> $GITHUB_ENV
 
       - name: Login to DockerHub Registry
         if: env.need_docker_build
@@ -130,7 +132,7 @@ jobs:
         if: steps.filter.outputs.dockerchanged == 'true' || needs.npm.outputs.didpublishnpm == 'true'
         run: |
           echo "Dockerfile changed, and/or new NPM module published. Need to update Docker-extras image."
-          echo '::set-env name=need_docker_build::true'
+          echo "need_docker_build=true" >> $GITHUB_ENV
 
       - name: Login to DockerHub Registry
         if: env.need_docker_build

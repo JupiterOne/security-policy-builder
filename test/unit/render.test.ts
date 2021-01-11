@@ -24,5 +24,6 @@ test('renderTemplateFile writes the filled data to an output path', async () => 
 
 test('mergeAutomaticPSPVars sets a defaultRevision', async () => {
   const merged = render.test.mergeAutomaticPSPVars({} as PolicyBuilderConfig);
-  expect(merged.organization.defaultRevision).toBe('2020.1');
+  const year = new Date().getFullYear();
+  expect(merged.organization.defaultRevision).toBe(`${year}.1`);
 });
