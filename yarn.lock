@@ -1175,9 +1175,9 @@
   integrity sha512-bYq67Qzy/gErj0E0j4BsiHZrTCeys/qH55mKKDuAXYP6bXOwLILQbhGYn1i7PrRDTSIWl3g2JYy7HLAyHmFK5w==
 
 "@jupiterone/typescript-tools@^13.1.1":
-  version "13.1.1"
-  resolved "https://registry.yarnpkg.com/@jupiterone/typescript-tools/-/typescript-tools-13.1.1.tgz#4eb197649927d704bff52ebca073f84b80cd0c66"
-  integrity sha512-cZw/iQcPKtcsDWzTtrBA8nhjTThtqWdInYkiISDjdVsKUMRIKHPXxhXmZIuZz66qLXMmu/ilg4uIH/8za+4LkQ==
+  version "13.2.2"
+  resolved "https://registry.yarnpkg.com/@jupiterone/typescript-tools/-/typescript-tools-13.2.2.tgz#7981e068ac90629c4d9758d7ced878dd6eab6fc7"
+  integrity sha512-V54AutzaKeIEJj2ksU/SgTOa96GelbrgRE9spopOpcj8CEeowQx8Jh7dAjRrv18QZTyw12dywrYOONGFO3RkBA==
   dependencies:
     "@babel/cli" "^7.11.6"
     "@babel/core" "^7.11.6"
@@ -1194,6 +1194,7 @@
     jest "^26.4.2"
     lint-staged "^10.3.0"
     prettier "^2.1.1"
+    prettier-plugin-organize-imports "^1.1.1"
     ttypescript "^1.5.11"
     typescript "^4.1.2"
     yalc "^1.0.0-pre.48"
@@ -4844,6 +4845,11 @@ prelude-ls@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
   integrity sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=
+
+prettier-plugin-organize-imports@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/prettier-plugin-organize-imports/-/prettier-plugin-organize-imports-1.1.1.tgz#7f1ac1a13d4d1752dc16881894dde1c10ccbf3c0"
+  integrity sha512-rFA1lnek1FYkMGthm4xBKME41qUKItTovuo24bCGZu/Vu1n3gW71UPLAkIdwewwkZCe29gRVweSOPXvAdckFuw==
 
 prettier@^2.1.1:
   version "2.1.1"
