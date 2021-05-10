@@ -65,6 +65,6 @@
     "nock": "^13.0.4",
     "require-self-ref": "^2.0.1",
     "ts-node": "^9.0.0",
-    "type-fest": "^0.20.2"
+    "type-fest": "^1.1.1"
   }
 }
