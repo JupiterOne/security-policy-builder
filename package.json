@@ -52,7 +52,7 @@
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
-    "@jupiterone/typescript-tools": "^13.1.1",
+    "@jupiterone/typescript-tools": "^14.0.2",
     "@types/cli-spinner": "^0.2.0",
     "@types/fs-extra": "^9.0.1",
     "@types/inquirer": "^7.3.1",
