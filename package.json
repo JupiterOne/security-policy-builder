@@ -37,7 +37,7 @@
     "fs-extra": "^9.0.1",
     "graphql": "^15.3.0",
     "graphql-tag": "^2.11.0",
-    "inquirer": "^7.3.3",
+    "inquirer": "^8.1.2",
     "joi": "^17.2.1",
     "moment": "^2.27.0",
     "mustache": "^4.0.1",
