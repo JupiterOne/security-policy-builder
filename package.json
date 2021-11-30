@@ -31,7 +31,6 @@
     "@jupiterone/security-policy-templates": "^2.9.0",
     "@lifeomic/attempt": "^3.0.0",
     "chalk": "^4.1.0",
-    "cli-spinner": "^0.2.10",
     "commander": "^7.1.0",
     "file-set": "^4.0.1",
     "fs-extra": "^9.0.1",
@@ -44,16 +43,13 @@
     "node-fetch": "^2.6.1",
     "p-all": "^4.0.0",
     "p-map": "^5.3.0",
-    "p-throttle": "^5.0.0",
     "pluralize": "^8.0.0",
     "progress": "^2.0.3",
     "showdown": "^1.9.1",
-    "strip-ansi": "^6.0.0",
-    "valid-url": "^1.0.9"
+    "strip-ansi": "^6.0.0"
   },
   "devDependencies": {
     "@jupiterone/typescript-tools": "^13.1.1",
-    "@types/cli-spinner": "^0.2.0",
     "@types/fs-extra": "^9.0.1",
     "@types/inquirer": "^7.3.1",
     "@types/mustache": "^4.0.1",
