@@ -24,7 +24,7 @@ import {
 } from '~/src/types';
 
 const EUSAGEERROR = 126;
-const MAX_CONCURRENCY = 2;
+const MAX_CONCURRENCY = 4;
 
 type ProgramInput = {
   account?: string;
