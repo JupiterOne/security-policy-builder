@@ -1,5 +1,5 @@
 {
-  "extends": "./node_modules/@jupiterone/typescript-tools/config/typescript",
+  "extends": "./node_modules/@jupiterone/typescript-tools/config/typescript.json",
   "compilerOptions": {
     "rootDir": ".",
     "outDir": ".tsc/dist",
