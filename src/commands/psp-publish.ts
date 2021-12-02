@@ -1,29 +1,30 @@
-import { prompt } from 'inquirer';
-import commander from 'commander';
-import * as error from '~/src/error';
-import publishToConfluence, {
-  PublishToConfluenceOptions,
-} from '~/src/publishToConfluence';
-import path from 'path';
-import fs, { promises as fsPromises } from 'fs';
-import pAll, { PromiseFactory } from 'p-all';
-import {
-  PolicyBuilderConfig,
-  SectionName,
-  TemplateData,
-  PolicyBuilderElement,
-} from '~/src/types';
 import chalk from 'chalk';
+import commander from 'commander';
+import fs, { promises as fsPromises } from 'fs';
+import { prompt } from 'inquirer';
+import pAll from 'p-all';
+import pMap from 'p-map';
+import path from 'path';
 import packageJson from '~/package.json';
+import * as error from '~/src/error';
 import {
   createJupiterOneClient,
   J1Options,
   JupiterOneClient,
   JupiterOneEnvironment,
 } from '~/src/j1';
+import publishToConfluence, {
+  PublishToConfluenceOptions,
+} from '~/src/publishToConfluence';
+import {
+  PolicyBuilderConfig,
+  PolicyBuilderElement,
+  SectionName,
+  TemplateData,
+} from '~/src/types';
 
 const EUSAGEERROR = 126;
-const MAX_CONCURRENCY = 2;
+const MAX_CONCURRENCY = 4;
 
 type ProgramInput = {
   account?: string;
@@ -101,17 +102,20 @@ export async function run() {
   const templateData = await readTemplateData(program, config);
   const j1Client = initializeJ1Client(program);
   await storeConfigWithAccount(program, j1Client, config);
-  const policyPromises = config.policies.map((p: PolicyBuilderElement) =>
-    upsertPolicy({
-      program,
-      j1Client,
-      policy: p,
-      templates: templateData,
-      config,
-    })
-  );
+
   try {
-    await Promise.all(policyPromises);
+    await pMap(
+      config.policies,
+      (p: PolicyBuilderElement) =>
+        upsertPolicy({
+          program,
+          j1Client,
+          policy: p,
+          templates: templateData,
+          config,
+        }),
+      { concurrency: MAX_CONCURRENCY }
+    );
     console.log('Verifying the order of all policies and procedures...');
     await j1Client.reorderItems({
       mapping: {
@@ -228,7 +232,7 @@ async function readTemplateData(
     references: {},
   };
 
-  const todos: PromiseFactory<void>[] = [];
+  const todos: (() => Promise<void>)[] = [];
   const sections: SectionName[] = ['policies', 'procedures', 'references'];
   const templateCount = sections.reduce((acc, cv) => {
     return acc + (config[cv]?.length ?? 0);
@@ -275,41 +279,43 @@ async function upsertPolicy({
   });
   console.log(`Upserted policy: ${policy.id}`);
   const isRef = policy.id === 'ref';
-  const upsertProcedurePromises = (policy.procedures as string[])?.map(
-    async (procedureId) => {
-      const procedure = ((isRef
-        ? config.references
-        : config.procedures) as PolicyBuilderElement[]).find(
-        (procedure) => procedure.id === procedureId
-      );
-      if (!procedure) {
-        throw error.fatal(`Unable to find procedure with id: ${procedureId}`);
-      }
-      const template = (isRef ? templates.references : templates.procedures)[
-        procedure.id
-      ];
 
-      await j1Client.upsertProcedure({
-        data: {
-          policyId: uuid,
-          id: procedure.id,
-          isRef,
-          template,
-          file: procedure.file,
-          name: procedure.name as string,
-          provider: procedure.provider,
-          applicable: procedure.applicable,
-          adopted: procedure.adopted,
-          summary: (procedure.summary as string) || '',
-        },
-      });
-      console.log(
-        `Upserted ${isRef ? 'reference' : 'procedure'}: ${procedureId}`
-      );
+  const upsertProcedureViaJ1Client = async (procedureId: string) => {
+    const procedure = ((isRef
+      ? config.references
+      : config.procedures) as PolicyBuilderElement[]).find(
+      (procedure) => procedure.id === procedureId
+    );
+    if (!procedure) {
+      throw error.fatal(`Unable to find procedure with id: ${procedureId}`);
     }
-  );
+    const template = (isRef ? templates.references : templates.procedures)[
+      procedure.id
+    ];
 
-  await Promise.all(upsertProcedurePromises);
+    await j1Client.upsertProcedure({
+      data: {
+        policyId: uuid,
+        id: procedure.id,
+        isRef,
+        template,
+        file: procedure.file,
+        name: procedure.name as string,
+        provider: procedure.provider,
+        applicable: procedure.applicable,
+        adopted: procedure.adopted,
+        summary: (procedure.summary as string) || '',
+      },
+    });
+
+    console.log(
+      `Upserted ${isRef ? 'reference' : 'procedure'}: ${procedureId}`
+    );
+  };
+
+  await pMap(policy.procedures as string[], upsertProcedureViaJ1Client, {
+    concurrency: MAX_CONCURRENCY,
+  });
 }
 
 async function storeConfigWithAccount(
