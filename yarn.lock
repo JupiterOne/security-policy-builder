@@ -1343,9 +1343,9 @@
     yargs "^16.2.0"
 
 "@lifeomic/attempt@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@lifeomic/attempt/-/attempt-3.0.0.tgz#75fecc204f8b0ac18b5363b4404bb32450f01859"
-  integrity sha512-Ibk4Vfl46dSrhtH5fHsrTA4waAuyP7/qcr3uo0mO70azRc6LWgJILlMy3B1oOvyiN9jQcdqwsThaQkPKLiYKTg==
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@lifeomic/attempt/-/attempt-3.0.1.tgz#a1d65fc06df3b5650cc851a6cafee0a733f8b58e"
+  integrity sha512-zvQ6ydPI2mevhuZ++l2S93+DS08w27ad942Ae9WW5h7j+giEHrK7rsgbchVTAs0jo35Ox90G5/c8ZDSz5vipWg==
 
 "@nodelib/fs.scandir@2.1.3":
   version "2.1.3"
