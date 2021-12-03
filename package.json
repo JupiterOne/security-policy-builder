@@ -54,7 +54,7 @@
     "@types/inquirer": "^7.3.1",
     "@types/mustache": "^4.0.1",
     "@types/nock": "^11.1.0",
-    "@types/node-fetch": "^2.5.7",
+    "@types/node-fetch": "^3.0.3",
     "@types/pluralize": "^0.0.29",
     "@types/progress": "^2.0.3",
     "@types/showdown": "^1.9.3",
