@@ -26,9 +26,8 @@ jobs:
       - name: Verify that Docker image builds
         run: docker build .
 
-
   npm:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: test
 
@@ -75,9 +74,8 @@ jobs:
           npm publish --access public ./dist
           echo "::set-output name=didpublishnpm::true"
 
-
   docker:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: [test, npm]
 
@@ -94,14 +92,18 @@ jobs:
               - 'Dockerfile'
 
       - name: Should Build?
-        if: steps.filter.outputs.dockerchanged == 'true' || needs.npm.outputs.didpublishnpm == 'true'
+        if:
+          steps.filter.outputs.dockerchanged == 'true' ||
+          needs.npm.outputs.didpublishnpm == 'true'
         run: |
           echo "Dockerfile changed, and/or new NPM module published. Need to update Docker image."
           echo "need_docker_build=true" >> $GITHUB_ENV
 
       - name: Login to DockerHub Registry
         if: env.need_docker_build
-        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        run:
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin
 
       - name: Build the latest Docker image
         if: env.need_docker_build
@@ -112,7 +114,7 @@ jobs:
         run: docker push jupiterone/pspbuilder:latest
 
   docker-extras:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: [test, npm]
 
@@ -129,18 +131,24 @@ jobs:
               - 'Dockerfile-extras'
 
       - name: Should Build?
-        if: steps.filter.outputs.dockerchanged == 'true' || needs.npm.outputs.didpublishnpm == 'true'
+        if:
+          steps.filter.outputs.dockerchanged == 'true' ||
+          needs.npm.outputs.didpublishnpm == 'true'
         run: |
           echo "Dockerfile changed, and/or new NPM module published. Need to update Docker-extras image."
           echo "need_docker_build=true" >> $GITHUB_ENV
 
       - name: Login to DockerHub Registry
         if: env.need_docker_build
-        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        run:
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin
 
       - name: Build the latest Docker image
         if: env.need_docker_build
-        run: docker build . --file Dockerfile-extras --tag jupiterone/pspbuilder-extras:latest
+        run:
+          docker build . --file Dockerfile-extras --tag
+          jupiterone/pspbuilder-extras:latest
 
       - name: Push the latest Docker image
         if: env.need_docker_build

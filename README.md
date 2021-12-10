@@ -198,7 +198,7 @@ authorized security staff only.
 
 ### CI/CD
 
-Building and publishing the PSPs upon authorized merge to master branch is
+Building and publishing the PSPs upon authorized merge to main branch is
 supported via the `-n` or `--noninteractive` flags. Do something like:
 
 ```bash
