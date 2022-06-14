@@ -129,7 +129,7 @@ JupiterOne account, so that you and others in your organization can access them
 online.
 
 ```bash
-psp publish -c ./config.json -t ./templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN
+psp publish -c ./templates/config.json -t ./templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN
 ```
 
 or
