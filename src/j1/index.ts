@@ -6,7 +6,7 @@ import * as j1GraphQL from './j1GraphQL';
 import { EntityForSync, RelationshipForSync } from '~/src/types';
 import { retry } from '@lifeomic/attempt';
 
-export type JupiterOneEnvironment = 'localhost' | 'dev' | 'prod' | undefined;
+export type JupiterOneEnvironment = 'localhost' | 'dev' | 'prod' | 'fedramp' | undefined;
 
 export type J1Options = {
   accountId: string;
@@ -323,6 +323,10 @@ class JupiterOneClient {
       persisterRestApiUrl = 'https://api.dev.jupiterone.io';
       persisterGraphQLApiUrl = 'https://api.dev.jupiterone.io/graphql';
       queryGraphQLApiUrl = 'https://api.dev.jupiterone.io/graphql';
+    } else if (targetEnvironment === 'fedramp') {
+      persisterRestApiUrl = 'https://api.fedramp.jupiterone.io';
+      persisterGraphQLApiUrl = 'https://api.fedramp.jupiterone.io/graphql';
+      queryGraphQLApiUrl = 'https://api.fedramp.jupiterone.io/graphql';
     } else {
       throw new Error(
         'Unrecognized target JupiterOne environment: ' + targetEnvironment
