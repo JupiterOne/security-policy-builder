@@ -1,6 +1,6 @@
 {
   "name": "@jupiterone/security-policy-builder",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Configurable compilation of policies, standards, and procedures documentation.",
   "author": "JupiterOne <hello@jupiterone.io>",
   "keywords": [
@@ -24,8 +24,7 @@
     "local-publish": "export $(grep -v '^#' .env | xargs); ./bin/psp publish -n -c ./config.json -t ./templates -a $J1_ACCOUNT_ID -k $J1_API_TOKEN",
     "publish:patch": "yarn version --patch",
     "publish:minor": "yarn version --minor",
-    "publish:major": "yarn version --major",
-    "preversion": "yarn test"
+    "publish:major": "yarn version --major"
   },
   "dependencies": {
     "@jupiterone/security-policy-templates": "^2.9.0",
