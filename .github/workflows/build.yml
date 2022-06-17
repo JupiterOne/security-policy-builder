@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Initialize Output
-        run: echo "::set-output name=didpublishnpm::false"
+        run: echo "didpublishnpm=false" >> $GITHUB_ENV
 
       - name: Check out source code
         uses: actions/checkout@v2
@@ -72,7 +72,7 @@ jobs:
         run: |
           echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > .npmrc
           npm publish --access public ./dist
-          echo "::set-output name=didpublishnpm::true"
+          echo "didpublishnpm=true" >> $GITHUB_ENV
 
   docker:
     if: github.ref == 'refs/heads/main'
