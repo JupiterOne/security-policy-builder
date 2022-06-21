@@ -45,7 +45,7 @@
     "pluralize": "^8.0.0",
     "progress": "^2.0.3",
     "showdown": "^1.9.1",
-    "strip-ansi": "^6.0.0"
+    "strip-ansi": "^7.0.1"
   },
   "devDependencies": {
     "@jupiterone/typescript-tools": "^15.0.0",
