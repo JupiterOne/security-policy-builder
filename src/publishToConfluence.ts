@@ -1,7 +1,7 @@
-import { prompt } from 'inquirer';
-import path from 'path';
 import fs from 'fs-extra';
 import fetch from 'node-fetch';
+import os from 'os';
+import path from 'path';
 import showdown from 'showdown';
 import * as error from '~/src/error';
 
@@ -9,6 +9,8 @@ const converter = new showdown.Converter({
   parseImgDimensions: true,
   simplifiedAutoLink: true,
   tables: true,
+  disableForced4SpacesIndentedSublists: true,
+  ghCompatibleHeaderId: true,
 });
 
 const CONFLUENCE_PAGES = './confluence-pages.json';
@@ -23,51 +25,25 @@ export type PublishToConfluenceOptions = {
   space: string;
   username: string;
   password: string;
+  parent: string;
+  debug: boolean;
 };
-
-async function gatherCreds() {
-  const answer = await prompt([
-    {
-      type: 'input',
-      name: 'domain',
-      message:
-        "Confluence domain (the vanity subdomain before '.atlassian.net'):",
-    },
-    {
-      type: 'input',
-      name: 'space',
-      message: 'Confluence space key:',
-    },
-    {
-      type: 'input',
-      name: 'username',
-      message: 'Confluence username:',
-    },
-    {
-      type: 'password',
-      name: 'password',
-      message: 'Confluence password:',
-    },
-  ]);
-  return {
-    domain: answer.domain,
-    space: answer.space,
-    username: answer.username,
-    password: answer.password,
-  };
-}
 
 function parseLinks(
   pageUrl: string,
   html: string,
   confluencePages: Record<string, string>
 ) {
-  const linkRegex = /href=['"]([\w-]+\.md)(#.*)?['"]/gm;
-  const match = linkRegex.exec(html);
+  const linkRegex: RegExp = /href=['"]([\w-]+\.md)(#.*)?['"]/gm;
+  const hasLinks = linkRegex.test(html);
 
-  return match
-    ? html.replace(linkRegex, `href="${pageUrl}/${confluencePages[match[1]]}"`)
-    : html;
+  if (hasLinks) {
+    return html.replace(linkRegex, (match, p1, p2 = '') => {
+      return `href="${pageUrl}/${confluencePages[p1]}${p2.toLowerCase()}"`;
+    });
+  } else {
+    return html;
+  }
 }
 
 async function getVersion(headers: Record<string, string>, page: string) {
@@ -83,13 +59,12 @@ export default async function publishToConfluence(
   source: string,
   options: PublishToConfluenceOptions
 ) {
-  const docsPath = source || path.join(__dirname, '../docs');
+  const docsPath = source || './docs';
   if (!fs.existsSync(docsPath)) {
     error.fatal('Please run `psp build` first to generate the policy docs.');
   }
 
-  const { domain, space, username, password } =
-    options || (await gatherCreds());
+  const { domain, space, username, password, parent, debug } = options;
 
   const site = `https://${domain || CONFLUENCE_DOMAIN}.atlassian.net`;
   const baseUrl = `${site}/wiki/rest/api/content`;
@@ -97,6 +72,7 @@ export default async function publishToConfluence(
 
   const headers = {
     'Content-Type': 'application/json',
+
     Accept: 'application/json',
     Authorization: `Basic ${Buffer.from(
       (username || CONFLUENCE_USER) + ':' + (password || CONFLUENCE_PASS)
@@ -109,6 +85,14 @@ export default async function publishToConfluence(
 
   const worked = [];
   const failed = [];
+  let debugPath = '';
+
+  if (debug) {
+    debugPath = await fs.mkdtemp(path.join(os.tmpdir(), 'confluence-html-'));
+    console.log(
+      `Debug enabled, generated confluence html can be found in ${debugPath}`
+    );
+  }
 
   const docs = fs.readdirSync(docsPath);
 
@@ -121,8 +105,8 @@ export default async function publishToConfluence(
     if (doc.endsWith('.md')) {
       const data = fs.readFileSync(path.join(docsPath, doc), 'utf8');
       const parsedData = data
+        .replace(/#([\w-]+)/gm, '$&'.toLowerCase())
         .replace(/^#(.*)$/m, '') // removes title
-        .replace(/^ {2}(-|\*)/gm, '    -') // fixes sublist indentation
         .replace(/&/gm, '&amp;')
         .replace(/[‘’]/gm, `'`) // fixes quote character
         .replace(/[“”]/gm, `"`);
@@ -143,13 +127,14 @@ export default async function publishToConfluence(
       }
       const title = match[1].trim();
 
-      const body = {
+      const req = {
         version,
         type: 'page',
         title,
         space: {
           key: space || CONFLUENCE_SPACE,
         },
+        ancestors: parent ? [{ id: parent }] : [],
         body: {
           storage: {
             value: parsedHtml,
@@ -161,20 +146,25 @@ export default async function publishToConfluence(
       const options = {
         method: pageId ? 'put' : 'post',
         headers,
-        body: JSON.stringify(body),
+        body: JSON.stringify(req),
       };
 
       const uri = pageId ? `${baseUrl}/${pageId}` : baseUrl;
       const response = await fetch(uri, options);
+      const result = await response.json();
       if (response.ok) {
-        const result = await response.json();
         confluencePages[doc] = pageId || result.id;
+        if (debug) {
+          fs.writeFileSync(`${debugPath}/${doc}.html`, parsedHtml);
+        }
         worked.push(doc);
       } else {
         failed.push(doc);
-        fs.writeFileSync(`./failed-${doc}.html`, parsedHtml);
+        if (debug) {
+          fs.writeFileSync(`${debugPath}/failed-${doc}.html`, parsedHtml);
+        }
         console.error(`publish to confluence failed for ${doc}`);
-        console.error({ response: await response.json() });
+        console.error(result.message);
         continue;
       }
     }
