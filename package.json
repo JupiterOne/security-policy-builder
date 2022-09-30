@@ -30,7 +30,7 @@
     "@jupiterone/security-policy-templates": "^2.9.0",
     "@lifeomic/attempt": "^3.0.0",
     "chalk": "^4.1.0",
-    "commander": "^7.1.0",
+    "commander": "^9.4.1",
     "file-set": "^4.0.1",
     "fs-extra": "^9.0.1",
     "graphql": "^15.3.0",
