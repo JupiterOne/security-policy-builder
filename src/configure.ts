@@ -236,10 +236,15 @@ function getAdoptedProceduresForPolicy(
 // merges additional runtime-calculated values into organization
 function mergeAutomaticPSPVars(config: PolicyBuilderConfig) {
   const defaultRevision = `${new Date().getFullYear()}.1`;
-  const mergeValues = {
-    defaultRevision,
+
+  const merged: PolicyBuilderConfig = {
+    organization: {
+      defaultRevision,
+    },
   };
-  Object.assign(config.organization, mergeValues);
+
+  Object.assign(merged, config);
+  return merged;
 }
 
 // expects full config object
