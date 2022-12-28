@@ -48,7 +48,7 @@
     "strip-ansi": "^6.0.0"
   },
   "devDependencies": {
-    "@jupiterone/typescript-tools": "^15.0.0",
+    "@jupiterone/typescript-tools": "^18.0.4",
     "@types/fs-extra": "^9.0.1",
     "@types/inquirer": "^7.3.1",
     "@types/mustache": "^4.0.1",
