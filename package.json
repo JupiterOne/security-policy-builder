@@ -60,6 +60,7 @@
     "nock": "^13.0.4",
     "require-self-ref": "^2.0.1",
     "ts-node": "^9.0.0",
+    "ttypescript": "^1.5.15",
     "type-fest": "^1.1.3"
   }
 }

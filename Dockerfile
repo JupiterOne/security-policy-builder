@@ -1,9 +1,10 @@
-FROM node:14.16.0-stretch-slim
+FROM node:16-bullseye-slim
 WORKDIR /opt
 
 # Install pandoc and other linting/helper tools
-RUN apt-get update && apt-get install --assume-yes \
-  python3-pip
+RUN apt-get update && apt-get -y install \
+  python3-pip \
+  unzip
 
 # Install psp CLI and additional linting tool
 RUN npm install -g \
