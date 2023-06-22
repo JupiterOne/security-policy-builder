@@ -33,7 +33,7 @@
     "commander": "^7.1.0",
     "file-set": "^4.0.1",
     "fs-extra": "^9.0.1",
-    "graphql": "^15.3.0",
+    "graphql": "^16.7.1",
     "graphql-tag": "^2.11.0",
     "inquirer": "^8.2.0",
     "joi": "^17.2.1",
