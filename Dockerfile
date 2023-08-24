@@ -1,4 +1,4 @@
-FROM node:16-bullseye-slim
+FROM node:20-bullseye-slim
 WORKDIR /opt
 
 # Install pandoc and other linting/helper tools
