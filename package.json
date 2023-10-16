@@ -2,13 +2,17 @@
   "name": "@jupiterone/security-policy-builder",
   "version": "4.2.0",
   "description": "Configurable compilation of policies, standards, and procedures documentation.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JupiterOne/security-policy-builder"
+  },
+  "license": "UNLICENSED",
   "author": "JupiterOne <hello@jupiterone.io>",
   "keywords": [
     "security",
     "documentation",
     "compiler"
   ],
-  "license": "UNLICENSED",
   "main": "dist/index.js",
   "bin": {
     "psp": "bin/psp"
