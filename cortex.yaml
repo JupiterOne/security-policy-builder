@@ -1,0 +1,14 @@
+openapi: 3.0.1
+info:
+  title: '@jupiterone/security-policy-builder'
+  description: >-
+    Configurable compilation of policies, standards, and procedures
+    documentation.
+  x-cortex-git:
+    github:
+      repository: JupiterOne/security-policy-builder
+  x-cortex-owners:
+    - type: group
+      name: JupiterOne/janus
+  x-cortex-service-groups: tier-4
+  x-cortex-tag: '@jupiterone/security-policy-builder'
