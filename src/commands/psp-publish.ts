@@ -37,6 +37,8 @@ type ProgramInput = {
   site?: string;
   space?: string;
   docs?: string;
+  parent?: string;
+  debug?: boolean;
   wait?: boolean;
 };
 
@@ -69,22 +71,28 @@ export async function run() {
     )
     .option('--space <spaceKey>', 'Space key of the Confluence wiki space')
     .option(
-      '-d, --docs [dir]',
-      'path to docs; used in conjunction with --confluence option',
-      'docs'
+      '-d, --docs <dir>',
+      'path to docs; used in conjunction with --confluence option'
+    )
+    .option('-p, --parent <id>', 'Parent page ID for confluence export')
+    .option(
+      '-d, --debug',
+      'Dump generated confluence html to a tempdir for troubleshooting'
     )
     .parse(process.argv)
     .opts() as ProgramInput;
 
-  if (program.confluence && program.docs) {
+  if (program.confluence) {
     if (program.site && program.space && program.user && program.apiToken) {
       const options: PublishToConfluenceOptions = {
         domain: program.site,
         space: program.space,
         username: program.user,
         password: program.apiToken,
+        parent: program.parent ? program.parent : '',
+        debug: program.debug ? true : false,
       };
-      await publishToConfluence(program.docs, options);
+      await publishToConfluence(program.docs ? program.docs : '', options);
       process.exit(0);
     } else {
       console.log(chalk.red('Missing required arguments'));

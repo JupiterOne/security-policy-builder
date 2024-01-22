@@ -74,19 +74,6 @@ async function renderTemplateFile(
   return outputPath;
 }
 
-function mergeAutomaticPSPVars(config: PolicyBuilderConfig) {
-  const defaultRevision = `${new Date().getFullYear()}.1`;
-
-  const merged: PolicyBuilderConfig = {
-    organization: {
-      defaultRevision,
-    },
-  };
-
-  Object.assign(merged, config);
-  return merged;
-}
-
 async function renderPSPDocs(
   config: PolicyBuilderConfig,
   paths: PolicyBuilderPaths
@@ -168,7 +155,7 @@ async function renderPartials(
 ) {
   const status: PolicyBuilderStatus = { ok: [], errors: [], type: 'partials' };
 
-  config = mergeAutomaticPSPVars(config);
+  config = configure.mergeAutomaticPSPVars(config);
 
   // TODO: we're ignoring standards for now...
   const partialDirs = {
@@ -303,7 +290,6 @@ const test = {
   fillTemplate,
   generateIndexTemplate,
   generateMkdocsPages,
-  mergeAutomaticPSPVars,
 };
 
 export {
