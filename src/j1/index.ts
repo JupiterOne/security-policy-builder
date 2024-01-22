@@ -324,9 +324,9 @@ class JupiterOneClient {
       persisterGraphQLApiUrl = 'https://api.dev.jupiterone.io/graphql';
       queryGraphQLApiUrl = 'https://api.dev.jupiterone.io/graphql';
     } else if (targetEnvironment === 'fedramp') {
-      persisterRestApiUrl = 'https://api.fedramp.jupiterone.io';
-      persisterGraphQLApiUrl = 'https://api.fedramp.jupiterone.io/graphql';
-      queryGraphQLApiUrl = 'https://api.fedramp.jupiterone.io/graphql';
+      persisterRestApiUrl = 'https://api.fedramp.jupiterone.us';
+      persisterGraphQLApiUrl = 'https://api.fedramp.jupiterone.us/graphql';
+      queryGraphQLApiUrl = 'https://api.fedramp.jupiterone.us/graphql';
     } else {
       throw new Error(
         'Unrecognized target JupiterOne environment: ' + targetEnvironment
