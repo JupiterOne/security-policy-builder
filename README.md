@@ -143,29 +143,25 @@ account Administrator, in order to publish the contents.
 
 ### Publishing policies and procedures to Confluence
 
-You can also publish the policies to a Confluence wiki space. Simply run the
-`psp publish` command with the `--confluence` option.
+You can also publish the policies to a Confluence Cloud wiki space. Simply run
+the `psp publish` command with the `--confluence` option and provide necessary
+configuration options for non-interactive publishing:
 
 ```bash
-psp publish --confluence
+psp publish --confluence --site <subdomain> --space <KEY> -u <username/email> -k <key/password> -p <parent page id> --debug
 ```
 
-You will be prompted to enter your Confluence domain and space key, and
-username/password:
+To see all available options for Confluence exports run the `psp publish --help`
+command.
 
-```bash
-? Confluence domain (the vanity subdomain before '.atlassian.net'):
-? Confluence space key:
-? Confluence username:
-? Confluence password: [hidden]
-Published 35 docs to Confluence.
-```
-
-Or, provide necessary configuration options for non-interactive publishing:
-
-```bash
-psp publish --confluence --site <subdomain> --space <KEY> --docs <path> -u <username/email> -k <key/password>
-```
+| Option   | Description                                                         | Type    | Required | Default               |
+| -------- | ------------------------------------------------------------------- | ------- | -------- | --------------------- |
+| site     | the vanity domain for the site `<site>.atlassian.net`               | string  | yes      |                       |
+| space    | the site space key to create the pages in, case-sensitive                               | string  | yes      |                       |
+| username | username for the upload                                             | string  | yes      |                       |
+| password | password (or API token) for the upload                              | string  | yes      |                       |
+| parent   | the parent id for all uploaded pages                                | string  | no       | Homepage of the space |
+| debug    | dump the generated Confluence HTML to a tempdir for troubleshooting | boolean | no       | false                 |
 
 The program will save the page ID for each published policy document locally to
 a file in the current directory: `confluence-pages.json`. Make sure this file is
