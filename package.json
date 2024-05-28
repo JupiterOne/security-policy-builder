@@ -48,7 +48,7 @@
     "p-map": "^4.0.0",
     "pluralize": "^8.0.0",
     "progress": "^2.0.3",
-    "showdown": "^1.9.1",
+    "showdown": "^2.1.0",
     "strip-ansi": "^6.0.0"
   },
   "devDependencies": {
@@ -60,7 +60,7 @@
     "@types/node-fetch": "^2.5.7",
     "@types/pluralize": "^0.0.29",
     "@types/progress": "^2.0.3",
-    "@types/showdown": "^1.9.3",
+    "@types/showdown": "^2.0.6",
     "nock": "^13.0.4",
     "require-self-ref": "^2.0.1",
     "ts-node": "^9.0.0",
