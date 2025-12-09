@@ -1584,9 +1584,9 @@
   integrity sha512-hiYA88aHiEIgDmeKlsyVsuQdcFn3Z2VuFd/Xm/HCnGnPD8UFU5BM128uzzRVVGEzKDKYUrRsRH9S2o+NUy/3IA==
 
 "@types/progress@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.npmjs.org/@types/progress/-/progress-2.0.3.tgz"
-  integrity sha512-bPOsfCZ4tsTlKiBjBhKnM8jpY5nmIll166IPD58D92hR7G7kZDfx5iB9wGF4NfZrdKolebjeAr3GouYkSGoJ/A==
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/@types/progress/-/progress-2.0.7.tgz#798b309935ef1cf5bef3b3f7bb8da7b0335bc67e"
+  integrity sha512-iadjw02vte8qWx7U0YM++EybBha2CQLPGu9iJ97whVgJUT5Zq9MjAPYUnbfRI2Kpehimf1QjFJYxD0t8nqzu5w==
   dependencies:
     "@types/node" "*"
 
