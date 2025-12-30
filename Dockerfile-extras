@@ -1,4 +1,4 @@
-FROM node:16-bullseye-slim
+FROM node:25-bullseye-slim
 # Debian stretch base-image, minimized
 WORKDIR /opt
 
